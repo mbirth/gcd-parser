@@ -145,6 +145,7 @@ with open(FILE, "rb") as f:
         raise Exception("Signature mismatch ({}, should be {})!".format(repr(sig), repr(GCD_SIG)))
 
     i = 0
+    fw_all_done = False
 
     while True:
         hdr = f.read(4)
@@ -155,14 +156,20 @@ with open(FILE, "rb") as f:
             print("End of file reached.")
             break
         payload = f.read(tlen)
-        if ttype == 0x01:
+        if ttype == 0x0001:
             parseTLV1(payload)
-        elif ttype == 0x03:
+        elif ttype == 0x0003:
             parseTLV3(payload)
-        elif ttype == 0x06:
+        elif ttype == 0x0006:
             parseTLV6(payload)
-        elif ttype == 0x07:
+        elif ttype == 0x0007:
             parseTLV7(payload)
+        elif ttype == 0x02bd and not fw_all_done:
+            hw_id = unpack("H", payload[0x208:0x20a])[0]
+            fw_ver = unpack("H", payload[0x20c:0x20e])[0]
+            print("  - Device ID: {:04x} / {:d} ({})".format(hw_id, hw_id, get_device(hw_id)))
+            print("  - Firmware version: {:04x} / {:d}".format(fw_ver, fw_ver))
+            fw_all_done = True
         else:
             payloadshort = payload[:64]
             #print("  > " + " ".join("{:02x}".format(c) for c in payloadshort))
