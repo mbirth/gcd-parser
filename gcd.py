@@ -35,9 +35,9 @@ DEV_TYPES = {
 
 running_cksum = 0
 all_cksum_ok = True
+last_type6_fids = []
 last_type6_format = ""
 last_type6_fields = []
-last_type6_fids = []
 
 def add_to_cksum(payload):
     global running_cksum
@@ -79,6 +79,7 @@ def parseTLV1(payload):
 
 def parseTLV3(payload):
     # Part number?
+    # 10 d4 5c 13 04 45 0d 14 41  - GPSMAP6x0_370
     # 10 d4 5c 13 04 45 0d 14 41  - fenix5Plus_SensorHub_220
     # 10 d4 5c 13 04 45 0d 14 41  - fenix_D2_tactix_500
     # 10 d4 5c 13 04 45 0d 14 41  - fenix5_1100
@@ -110,6 +111,7 @@ def parseTLV6(payload):
     if len(payload) % 2 != 0:
         print("  ! Invalid payload length!")
     
+    last_type6_fids = []
     last_type6_format = ""
     last_type6_fields = []
 
@@ -155,6 +157,8 @@ with open(FILE, "rb") as f:
         payload = f.read(tlen)
         if ttype == 0x01:
             parseTLV1(payload)
+        elif ttype == 0x03:
+            parseTLV3(payload)
         elif ttype == 0x06:
             parseTLV6(payload)
         elif ttype == 0x07:
