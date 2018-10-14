@@ -20,9 +20,9 @@ with open(FILE, "rb") as f:
             csum_pre = csum
             csum += c
             csum &= 0xff
+            last_byte = c
         if len(block) < 1024:
             print("End reached.")
-            last_byte = unpack("B", block[-1:])[0]
             break
 
 print("Sum of all bytes: {:02x}".format(csum))
