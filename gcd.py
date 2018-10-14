@@ -169,7 +169,7 @@ with open(FILE, "rb") as f:
             #print(hexlify(payload).decode("utf-8"))
             #print("  > " + repr(payloadshort))
         add_to_cksum(payload)
-        if ttype in [0x0505]:
+        if ttype in [0x0505, 0x02bd]:
             with open("fw_{:04x}.bin".format(ttype), "ab") as of:
                 of.write(payload)
         i = i + 1
