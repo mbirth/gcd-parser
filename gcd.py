@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Thanks to TurboCCC and kunix for all your work!
+
 GCD_SIG = b"GARMINd\00"
 
 from binascii import hexlify
@@ -35,6 +37,7 @@ running_cksum = 0
 all_cksum_ok = True
 last_type6_format = ""
 last_type6_fields = []
+last_type6_fids = []
 
 def add_to_cksum(payload):
     global running_cksum
@@ -88,92 +91,48 @@ def parseTLV3(payload):
     print("  > " + repr(payload))
 
 def parseTLV6(payload):
-    global last_type6_format, last_type6_fields
+    global last_type6_format, last_type6_fields, last_type6_fids
     # Describes following TLV7:
     # http://www.gpspassion.com/forumsen/topic.asp?TOPIC_ID=137838&whichpage=12
     # First nibble might be data type: 0 = B, 1 = H, 2 = L
     FIELD_TYPES = {
         0x000a: ["B", "XOR flag/value"],
-        0x000b: ["B", "Reboot/Downgrade flag"],
+        0x000b: ["B", "Reset/Downgrade flag"],
         0x1009: ["H", "Device hw_id"],
         0x100a: ["H", "Block type"],
+        0x100d: ["H", "Firmware version"],
         0x1014: ["H", "Field 1014"],
         0x1015: ["H", "Field 1015"],
         0x1016: ["H", "Field 1016 (WiFi fw)"],
         0x2015: ["L", "Block size"],
         0x5003: ["", "End of definition marker"],
     }
-    #             0a 10 15 20 09 10             0d 10 03 50 - 10 - fenix_D2_tactix_500 (before 0008)
-    # 0b 00 0a 00 0a 10 15 20 09 10             0d 10 03 50 - 14 - fenix_D2_tactix_500 (before 0555)
-    # 0b 00 0a 00 0a 10 15 20 09 10             0d 10 03 50 - 14 - fenix_D2_tactix_500 (before 0557)
-    # 0b 00 0a 00 0a 10 15 20                         03 50 - 10 - fenix5Plus_SensorHub_220
-    # 0b 00 0a 00 0a 10 15 20                         03 50 - 10 - fenix5Plus_ANT_BLE_300
-    # 0b 00 0a 00 0a 10 15 20                   16 10 03 50 - 12 - fenix5Plus_WiFi_250
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5_1100 (before 0505)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5_1100 (before 02BD)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5Plus_420_rollback.gcd (has only 1 Type 02BD)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5Plus_420.gcd (before Type 0505)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5Plus_420.gcd (before Type 02BD)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5Plus_510.gcd (before Type 0505)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - fenix5Plus_510.gcd (before Type 02BD)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - D2Delta_300 (before 0505)
-    # 0b 00 0a 00 0a 10 15 20 09 10 14 10 15 10 0d 10 03 50 - 18 - D2Delta_300 (before 02BD)
-    print("  > " + " ".join("{:02x}".format(c) for c in payload))
-    #print(hexlify(payload).decode("utf-8"))
-    print("  > " + repr(payload))
+    if len(payload) % 2 != 0:
+        print("  ! Invalid payload length!")
+    
+    last_type6_format = ""
+    last_type6_fields = []
+
+    for i in range(0, len(payload), 2):
+        fid = unpack("H", payload[i:i+2])[0]
+        fdef = FIELD_TYPES[fid]
+        print("  - {:04x}: {}".format(fid, fdef[1]))
+        last_type6_fids.append(fid)
+        last_type6_format += fdef[0]
+        last_type6_fields.append(fdef[1])
 
 def parseTLV7(payload):
-    # fenix/D2/tactix: hwid 060f
-    # fenix 5 Plus: hwid 0b54
-    # D2 Delta: hwid 0c7c
-    #       08 00 00 a2 04 00 0f 06             f4 01  - 10 - fenix_D2_tactix_500 (before 0008)
-    # 00 00 55 05 00 c0 01 00 0f 06             f4 01  - 12 - fenix_D2_tactix_500 (before 0555)
-    # 00 00 57 05 00 90 01 00 0f 06             f4 01  - 12 - fenix_D2_tactix_500 (before 0557)
-    # 00 00 05 05 00 94 00 00 89 0a c8 00 4e 00 4c 04  - 16 - fenix5_1100 (before 0505)
-    # 00 00 bd 02 00 46 3b 00 89 0a c8 00 4e 00 4c 04  - 16 - fenix5_1100 (before 02BD)
-    # 01 00 01 04 0c 0e 06 00                          -  8 - fenix5Plus_SensorHub_220 (before 0401)
-    # 01 00 01 04 f7 0f 02 00                          -  8 - fenix5Plus_ANT_BLE_300 (before 0401)
-    # 00 00 01 04 e4 4f 06 00       40 33              - 10 - fenix5Plus_WiFi_250
-    # 01 00 bd 02 00 2a 8d 00 54 0b c8 00 3b 00 a4 01  - 16 - fenix5Plus_420_rollback.gcd (has only 02BD)
-    # 00 00 05 05 00 ce 00 00 54 0b c8 00 3b 00 a4 01  - 16 - fenix5Plus_420.gcd (before Type 0505)
-    # 00 00 bd 02 00 2a 8d 00 54 0b c8 00 3b 00 a4 01  - 16 - fenix5Plus_420.gcd (before Type 02BD)
-    # 00 00 05 05 00 ce 00 00 54 0b c8 00 3b 00 fe 01  - 16 - fenix5Plus_510.gcd (before Type 0505)
-    # 00 00 bd 02 00 fa 93 00 54 0b c8 00 3b 00 fe 01  - 16 - fenix5Plus_510.gcd (before Type 02BD)
-    # 00 00 05 05 00 ce 00 00 7c 0c c8 00 01 00 2c 01  - 16 - D2Delta_300.gcd (before Type 0505)
-    # 00 00 bd 02 00 99 94 00 7c 0c c8 00 01 00 2c 01  - 16 - D2Delta_300.gcd (before Type 02BD)
-    # ^^ ^^ ^___^ ^_________^ ^___^             ^___^
-    # E  X  btype   blength    HWID             FwVer
-    erase = None
-    xor = None
-    hwid = None
-    nn6 = None
-    nn7 = None
-    fwver = None
-    if len(payload) == 16:
-        (erase, xor, btype, blen, hwid, nn6, nn7, fwver) = unpack("<BBHLHHHH", payload)
-    elif len(payload) == 12:
-        (erase, xor, btype, blen, hwid, fwver) = unpack("<BBHLHH", payload)
-    elif len(payload) == 10:
-        (btype, blen, hwid, fwver) = unpack("<HLHH", payload)
-        if btype == 0x0:
-            # other format
-            print("  ! First try to parse didn't make sense. Trying other format.")
-            hwid  = None   # reset
-            fwver = None   # reset
-            (erase, xor, btype, blen, nn6) = unpack("<BBHLH", payload)
-    elif len(payload) == 8:
-        (erase, xor, btype, blen) = unpack("<BBHL", payload)
-    else:
-        print("Type 7 not an expected length. ({} Bytes)".format(len(payload)))
-        return
-    if erase is not None: print("  - Reset/Downgrade flag?: {}".format(erase))
-    if xor is not None: print("  - XOR flag?: {}".format(xor))
-    print("  - Block type: {:04x}".format(btype))
-    print("  - Block length: {:d} Bytes".format(blen))
-    if hwid is not None: print("  - Device hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, get_device(hwid)))
-    if nn6 is not None: print("  - Unknown: {:04x} / {:d}".format(nn6, nn6))
-    if nn7 is not None: print("  - Unknown: {:04x} / {:d}".format(nn7, nn7))
-    if fwver is not None: print("  - Firmware version: {:d}".format(fwver))
+    global last_type6_format, last_type6_fields, last_type6_fids
+    values = unpack("<" + last_type6_format, payload)
+    for i, v in enumerate(values):
+        fid = last_type6_fids[i]
+        fdesc = last_type6_fields[i]
+        if fid == 0x1009:
+            print("  - {:>20}: 0x{:04x} / {:d} ({})".format(fdesc, v, v, get_device(v)))
+        elif fid == 0x2015:
+            print("  - {:>20}: {} Bytes".format(fdesc, v))
+        else:
+            print("  - {:>20}: 0x{:04x} / {:d}".format(fdesc, v, v))
 
 with open(FILE, "rb") as f:
     sig = f.read(8)
