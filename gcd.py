@@ -146,6 +146,7 @@ with open(FILE, "rb") as f:
 
     i = 0
     fw_all_done = False
+    cur_ttype = None
 
     while True:
         hdr = f.read(4)
@@ -176,8 +177,14 @@ with open(FILE, "rb") as f:
             #print(hexlify(payload).decode("utf-8"))
             #print("  > " + repr(payloadshort))
         add_to_cksum(payload)
-        if ttype in [0x0505, 0x02bd]:
-            with open("{}_{:04x}.bin".format(FILE, ttype), "ab") as of:
+        if ttype in [0x0008, 0x0401, 0x0505, 0x0555, 0x0557, 0x02bd]:
+            outname = "{}_{:04x}.bin".format(FILE, ttype)
+            if ttype != cur_ttype:
+                mode = "wb"
+            else:
+                mode = "ab"
+            cur_ttype = ttype
+            with open(outname, mode) as of:
                 of.write(payload)
         i = i + 1
 
