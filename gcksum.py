@@ -1,39 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from binascii import hexlify
-from struct import unpack
+from grmn import ChkSum
 import sys
 
 FILE = sys.argv[1]
+BLOCKSIZE = 4 * 1024
 
-print("Opening {}".format(FILE))
+print("Reading {} ".format(FILE), end="")
 
-csum_pre = 0
-csum = 0
-last_byte = 0xff
+csum = ChkSum()
 
 with open(FILE, "rb") as f:
     while True:
-        block = f.read(1024)
-        for c in block:
-            csum_pre = csum
-            csum += c
-            csum &= 0xff
-            last_byte = c
-        if len(block) < 1024:
-            print("End reached.")
+        block = f.read(BLOCKSIZE)
+        csum.add(block)
+        print(".", end="", flush=True)
+        if len(block) < BLOCKSIZE:
+            print(" done.")
             break
+    f.close()
 
-print("Sum of all bytes: {:02x}".format(csum))
-if csum == 0:
-    print("CHECKSUM VALID.")
+print("Sum of all bytes: {:02x}".format(csum.get_sum()))
+print("Last byte: {:02x}".format(csum.get_last_byte()))
+if csum.is_valid():
+    print("☑ CHECKSUM VALID.")
 else:
-    print("CHECKSUM INVALID!!! (Or GCD or other type.)")
-
-#print("Sum without last: {:02x}".format(csum_pre))
-
-expected_cksum = ( 0x100 - csum_pre ) & 0xff
-
-print("Expected last byte: {:02x}".format(expected_cksum))
-print("Actual last byte: {:02x}".format(last_byte))
+    print("☒ CHECKSUM INVALID!!! (Or GCD or other type.)")
+    expected_cksum = csum.get_expected()
+    print("Expected last byte: {:02x}".format(expected_cksum))
