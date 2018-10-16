@@ -43,7 +43,7 @@ def add_to_cksum(payload):
     global running_cksum
     for c in payload:
         running_cksum += c
-        running_cksum &= 0xff
+    running_cksum &= 0xff
 
 def get_tlv_comment(ttype):
     if ttype in TLV_TYPES:
