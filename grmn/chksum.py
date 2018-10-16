@@ -15,6 +15,17 @@ class ChkSum:
         self.last_byte = data[-1]
         self.chksum += self.last_byte
         self.chksum &= 0xff
+    
+    def add_from_file(self, filename: str, print_progress: bool = False, blocksize: int=16384):
+        with open(filename, "rb") as f:
+            while True:
+                block = f.read(blocksize)
+                self.add(block)
+                if print_progress:
+                    print(".", end="", flush=True)
+                if len(block) < blocksize:
+                    break
+            f.close()
 
     def get(self):
         remainder = ( 0x100 - self.chksum ) & 0xff
