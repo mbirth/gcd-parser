@@ -7,6 +7,7 @@ GCD_SIG = b"GARMINd\00"
 
 from binascii import hexlify
 from struct import unpack
+from grmn import ChkSum
 import sys
 
 FILE = sys.argv[1]
@@ -33,17 +34,11 @@ DEV_TYPES = {
     3196: "D2 Delta",
 }
 
-running_cksum = 0
+cksum = ChkSum()
 all_cksum_ok = True
 last_type6_fids = []
 last_type6_format = ""
 last_type6_fields = []
-
-def add_to_cksum(payload):
-    global running_cksum
-    for c in payload:
-        running_cksum += c
-    running_cksum &= 0xff
 
 def get_tlv_comment(ttype):
     if ttype in TLV_TYPES:
@@ -64,11 +59,11 @@ def parseTLVheader(hdr):
     return (ttype, tlen)
 
 def parseTLV1(payload):
-    global running_cksum, all_cksum_ok
+    global cksum, all_cksum_ok
     if len(payload) != 1:
         print("  ! Checksum has invalid length!")
         all_cksum_ok = False
-    expected = ( 0x100 - running_cksum ) & 0xFF
+    expected = cksum.get()
     payload = unpack("B", payload)[0]
     state = "INVALID!"
     if expected == payload:
@@ -138,7 +133,7 @@ def parseTLV7(payload):
 
 with open(FILE, "rb") as f:
     sig = f.read(8)
-    add_to_cksum(sig)
+    cksum.add(sig)
     if sig == GCD_SIG:
         print("Signature ok.")
     else:
@@ -150,7 +145,7 @@ with open(FILE, "rb") as f:
 
     while True:
         hdr = f.read(4)
-        add_to_cksum(hdr)
+        cksum.add(hdr)
         (ttype, tlen) = parseTLVheader(hdr)
         print("#{:04} TLV type {:04x} (offset 0x{:x}, length {} Bytes) - {}".format(i, ttype, f.tell(), tlen, get_tlv_comment(ttype)))
         if ttype == 0xFFFF:
@@ -176,7 +171,7 @@ with open(FILE, "rb") as f:
             #print("  > " + " ".join("{:02x}".format(c) for c in payloadshort))
             #print(hexlify(payload).decode("utf-8"))
             #print("  > " + repr(payloadshort))
-        add_to_cksum(payload)
+        cksum.add(payload)
         if ttype in [0x0008, 0x0401, 0x0505, 0x0555, 0x0557, 0x02bd]:
             outname = "{}_{:04x}.bin".format(FILE, ttype)
             if ttype != cur_ttype:
