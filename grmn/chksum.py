@@ -7,8 +7,7 @@ class ChkSum:
         self.last_byte = 0xff
 
     def add(self, data):
-        for c in data:
-            self.chksum += c
+        self.chksum += sum(bytearray(data))
         self.last_byte = data[-1]
         self.chksum &= 0xff
     
