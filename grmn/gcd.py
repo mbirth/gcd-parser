@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Thanks to TurboCCC and kunix for all your work!
 
+from .chksum import ChkSum
 from .tlv import TLV, TLV6, TLV7
 
 GCD_SIG = b"G\x41RM\x49Nd\00"
@@ -68,3 +69,32 @@ class Gcd:
                 tlv_count += 1
                 tlv_length += tlv.length
             last_tlv = tlv.type_id
+
+    def validate(self, print_stats: bool=False):
+        """
+        Checks and verifies all checksums in the GCD.
+        """
+        chksum = ChkSum()
+        chksum.add(GCD_SIG)
+        all_ok = True
+        if print_stats:
+            print("\nChecksum validation:")
+        for tlv in self.struct:
+            chksum.add(tlv.get())
+            if tlv.type_id == 0x0001:
+                expected_cs = chksum.get_expected()
+                file_cs = chksum.get_last_byte()
+                if print_stats:
+                    if expected_cs == file_cs:
+                        state = "OK"
+                    else:
+                        state = "INVALID"
+                    print("TLV{:04x} at 0x{:x}: {:02x} (expected: {:02x}) = {}".format(tlv.type_id, tlv.offset, file_cs, expected_cs, state))
+                if expected_cs != file_cs:
+                    all_ok = False
+        if print_stats:
+            if all_ok:
+                print("☑ ALL CHECKSUMS VALID.")
+            else:
+                print("☒ ONE OR MORE CHECKSUMS INVALID!")
+        return all_ok

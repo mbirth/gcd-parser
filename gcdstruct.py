@@ -15,3 +15,4 @@ print("Opening {}".format(FILE))
 gcd = Gcd(FILE)
 
 gcd.print_struct()
+gcd.validate(True)
