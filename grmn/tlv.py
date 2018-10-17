@@ -51,9 +51,6 @@ class TLV:
     def set_value(self, new_value: bytes):
         self.value = new_value
 
-    def get_length(self):
-        return self.length
-
     def get_actual_length(self):
         if self.value is None:
             return 0

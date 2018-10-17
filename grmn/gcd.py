@@ -35,7 +35,7 @@ class Gcd:
                 if tlv.type_id == 0xFFFF:
                     # End of file reached
                     break
-                tlength = tlv.get_length()
+                tlength = tlv.length
                 payload = f.read(tlength)
                 tlv.set_value(payload)
                 if tlv.type_id == 0x0006:
@@ -57,5 +57,5 @@ class Gcd:
                 print("#{:03d}: {}".format(i, tlv))
             else:
                 tlv_count += 1
-                tlv_length += tlv.get_length()
+                tlv_length += tlv.length
             last_tlv = tlv.type_id
