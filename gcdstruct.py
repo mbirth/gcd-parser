@@ -14,5 +14,4 @@ print("Opening {}".format(FILE))
 
 gcd = Gcd(FILE)
 
-for i, tlv in enumerate(gcd.struct):
-    print("#{:03d}: {}".format(i, tlv))
+gcd.print_struct()

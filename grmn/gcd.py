@@ -196,3 +196,9 @@ class Gcd:
                 elif tlv.type_id == 0x0007:
                     tlv.set_tlv6(last_tlv6)
             f.close()
+
+    def print_struct(self):
+        last_tlv = 0xffff
+        tlv_count = 0
+        for i, tlv in enumerate(self.struct):
+            print("#{:03d}: {}".format(i, tlv))
