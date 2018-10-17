@@ -47,5 +47,15 @@ class Gcd:
     def print_struct(self):
         last_tlv = 0xffff
         tlv_count = 0
+        tlv_length = 0
         for i, tlv in enumerate(self.struct):
-            print("#{:03d}: {}".format(i, tlv))
+            if tlv.type_id != last_tlv:
+                if tlv_count > 0:
+                    print(" + {} more ({} Bytes total payload)".format(tlv_count, tlv_length))
+                    tlv_count = 0
+                tlv_length = tlv.length
+                print("#{:03d}: {}".format(i, tlv))
+            else:
+                tlv_count += 1
+                tlv_length += tlv.get_length()
+            last_tlv = tlv.type_id
