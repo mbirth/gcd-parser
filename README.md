@@ -1,11 +1,11 @@
 GCD Parser
 ==========
 
-This is a parser for GCD files (firmware updates from a well-known manufacturer).
+This is a parser and some tools for working with GCD files (firmware updates from a well-known manufacturer).
 
 It's in Python, so feel free to add cool new features and submit pull requests.
 
-Thanks to TurboCCC and kunix for your work.
+Thanks to TurboCCC, kunix and Alex W. for your work.
 
 Most info from:
 

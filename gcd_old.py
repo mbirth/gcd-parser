@@ -7,7 +7,7 @@ GCD_SIG = b"GARMINd\00"
 
 from binascii import hexlify
 from struct import unpack
-from grmn import ChkSum
+from grmn import ChkSum, devices
 import sys
 
 FILE = sys.argv[1]
@@ -28,12 +28,6 @@ TLV_TYPES = {
     0xffff: "EOF marker",
 }
 
-DEV_TYPES = {
-    1551: "fenix/D2/tactix",
-    2900: "fenix 5 Plus",
-    3196: "D2 Delta",
-}
-
 cksum = ChkSum()
 all_cksum_ok = True
 last_type6_fids = []
@@ -45,12 +39,6 @@ def get_tlv_comment(ttype):
         return TLV_TYPES[ttype]
     else:
         return "Type {:04x} / {:d}".format(ttype, ttype)
-
-def get_device(hwid):
-    if hwid in DEV_TYPES:
-        return DEV_TYPES[hwid]
-    else:
-        return "Unknown"
 
 print("Opening {}".format(FILE))
 
@@ -125,7 +113,7 @@ def parseTLV7(payload):
         fid = last_type6_fids[i]
         fdesc = last_type6_fields[i]
         if fid == 0x1009:
-            print("  - {:>20}: 0x{:04x} / {:d} ({})".format(fdesc, v, v, get_device(v)))
+            print("  - {:>20}: 0x{:04x} / {:d} ({})".format(fdesc, v, v, devices.DEVICES.get(v, "Unknown device")))
         elif fid == 0x2015:
             print("  - {:>20}: {} Bytes".format(fdesc, v))
         else:
@@ -163,7 +151,7 @@ with open(FILE, "rb") as f:
         elif ttype == 0x02bd and not fw_all_done:
             hw_id = unpack("H", payload[0x208:0x20a])[0]
             fw_ver = unpack("H", payload[0x20c:0x20e])[0]
-            print("  - Device ID: {:04x} / {:d} ({})".format(hw_id, hw_id, get_device(hw_id)))
+            print("  - Device ID: {:04x} / {:d} ({})".format(hw_id, hw_id, devices.DEVICES.get(hw_id, "Unknown device")))
             print("  - Firmware version: {:04x} / {:d}".format(fw_ver, fw_ver))
             fw_all_done = True
         else:

@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+"""
+Calculates the Byte-checksum of a file and
+shows if it's (last Byte) correct or not.
+"""
+
 from grmn import ChkSum
 import sys
 

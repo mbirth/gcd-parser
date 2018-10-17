@@ -10,7 +10,7 @@ class ChkSum:
         self.chksum += sum(bytearray(data))
         self.last_byte = data[-1]
         self.chksum &= 0xff
-    
+
     def add_from_file(self, filename: str, print_progress: bool = False, blocksize: int=16384):
         with open(filename, "rb") as f:
             while True:

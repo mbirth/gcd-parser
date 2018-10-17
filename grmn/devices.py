@@ -663,6 +663,7 @@ DEVICES = {
     3109: "DriveAssist 51, APAC",
     3112: "Edge 520 Plus",
     3115: "GPSMAP 64sc SiteSurvey",
+    3126: "Instinct",
     3134: "Fenix 5S Plus APAC",
     3135: "Fenix 5X Plus APAC",
     3139: "zumo 396, APAC",

@@ -10,7 +10,7 @@ import sys
 GCD_SIG = b"G\x41RM\x49Nd\00"
 DEFAULT_COPYRIGHT = b"Copyright 1996-2017 by G\x61rm\x69n Ltd. or its subsidiaries."
 DEFAULT_FIRST_PADDING = 21
-DEFAULT_ALIGN = 0x1000
+DEFAULT_ALIGN = 0x1000    # second padding block pads until 0x1000
 
 TLV_TYPES = {
     0x0001: "Checksum rectifier",
@@ -28,23 +28,38 @@ TLV_TYPES = {
     0xffff: "EOF marker",
 }
 
+# Typical structure:
+# first 0x1000 Bytes: GCD_SIG > 0x0001 > 0x0002 > 0x0003 > 0x0005 > 0x0001 > 0x0002
+# then: 0x0001 > ( 0x0006 > 0x0007 > 0x???? > 0x0001 ... ) > 0xffff
+
 class TLV:
-    def __init__(self, type_id: int, expected_length: int, value=None):
+    def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
         self.type_id = type_id
+        self.offset = offset
         self.comment = TLV_TYPES.get(type_id, "Type {:04x} / {:d}".format(type_id, type_id))
         self.length = expected_length
         self.value = None
+        self.is_parsed = False
         if value is not None:
             self.value = bytes(value)
 
     @staticmethod
-    def factory(header: bytes):
-        (type_id, length) = unpack("<HH", payload)
+    def factory(header: bytes, offset: int = None):
+        (type_id, length) = unpack("<HH", header)
         if type_id == 0x0006:
-            return TLV6(type_id, length)
+            new_tlv = TLV6(type_id, length)
         elif type_id == 0x0007:
-            return TLV7(type_id, length)
-        return TLV(type_id, length)
+            new_tlv = TLV7(type_id, length)
+        else:
+            new_tlv = TLV(type_id, length)
+        new_tlv.offset = offset
+        return new_tlv
+
+    def __str__(self):
+        plural = ""
+        if self.length != 1:
+            plural = "s"
+        return "TLV Type {:04x} at 0x{:x}, {:d} Byte{} - {}".format(self.type_id, self.offset, self.length, plural, self.comment)
 
     def set_value(self, new_value: bytes):
         self.value = new_value
@@ -60,7 +75,7 @@ class TLV:
     def get_record_length(self):
         # Length including record definition
         return self.get_actual_length() + 4
-    
+
     def get_value(self):
         return self.value
 
@@ -90,10 +105,6 @@ class TLV6(TLV):
         0x2015: ["L", "Block size"],
         0x5003: ["", "End of definition marker"],
     }
-
-    def __init__(self, type_id: int, expected_length: int, value=None):
-        super.__init__(type_id, expected_length, value)
-        self.is_parsed = False
 
     def parse(self):
         if len(self.value) % 2 != 0:
@@ -147,8 +158,9 @@ class Gcd:
             if sig != GCD_SIG:
                 raise Exception("Signature mismatch ({}, should be {})!".format(repr(sig), repr(GCD_SIG)))
             while True:
+                cur_offset = f.tell()
                 header = f.read(4)
-                tlv = TLV.factory(header)
+                tlv = TLV.factory(header, offset=cur_offset)
                 self.struct.append(tlv)
                 if tlv.type_id == 0xFFFF:
                     # End of file reached
