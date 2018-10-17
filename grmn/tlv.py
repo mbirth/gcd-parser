@@ -63,8 +63,12 @@ class TLV:
     def get_value(self):
         return self.value
 
-    def get(self):
+    def get_header(self):
         header = pack("HH", self.type_id, self.get_actual_length())
+        return header
+
+    def get(self):
+        header = self.get_header()
         if self.value is None:
             return header
         return header + self.value
