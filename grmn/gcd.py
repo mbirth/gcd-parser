@@ -123,7 +123,20 @@ class TLV6(TLV):
 
         self.is_parsed = True
 
+    def __str__(self):
+        txt = super().__str__()
+        if not self.is_parsed:
+            self.parse()
+        for i, fid in enumerate(self.fids):
+            txt += "\n  - Field {:d}: {:04x} - {}".format(i+1, fid, self.fields[i])
+        return txt
+
 class TLV7(TLV):
+    def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
+        super().__init__(type_id, expected_length, value, offset)
+        self.tlv6 = None
+        self.attr = []
+
     def set_tlv6(self, tlv6: TLV6):
         self.tlv6 = tlv6
 
@@ -134,13 +147,23 @@ class TLV7(TLV):
         values = unpack("<" + self.tlv6.format, self.value)
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
+            self.attr.append((fid, v))
+        self.is_parsed = True
+
+    def __str__(self):
+        txt = super().__str__()
+        if not self.is_parsed:
+            self.parse()
+        for i, pair in enumerate(self.attr):
             fdesc = self.tlv6.fields[i]
+            (fid, v) = pair
             if fid == 0x1009:
-                print("  - {:>20}: 0x{:04x} / {:d} ({})".format(fdesc, v, v, devices.DEVICES.get(v, "Unknown device")))
+                txt += "\n  - Field {:d}: {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fdesc, v, v, devices.DEVICES.get(v, "Unknown device"))
             elif fid == 0x2015:
-                print("  - {:>20}: {} Bytes".format(fdesc, v))
+                txt += "\n  - Field {:d}: {:>20}: {} Bytes".format(i+1, fdesc, v)
             else:
-                print("  - {:>20}: 0x{:04x} / {:d}".format(fdesc, v, v))
+                txt += "\n  - Field {:d}: {:>20}: 0x{:04x} / {:d}".format(i+1, fdesc, v, v)
+        return txt
 
 class Gcd:
     def __init__(self, filename: str=None):
