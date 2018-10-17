@@ -13,6 +13,14 @@
             "console": "integratedTerminal"
         },
         {
+            "name": "Python: gcdstruct.py",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/gcdstruct.py",
+            "args": ["D2Delta_300.gcd"],
+            "console": "integratedTerminal"
+        },
+        {
             "name": "Python: Attach",
             "type": "python",
             "request": "attach",

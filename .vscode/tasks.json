@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Run fenix5Plus_510.gcd",
+            "label": "Run gcdstruct.py",
             "type": "shell",
-            "command": "python3 gcd.py fenix5Plus_510.gcd",
+            "command": "python3 gcdstruct.py fenix5Plus_510.gcd",
             "group": {
                 "kind": "build",
                 "isDefault": true

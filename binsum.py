@@ -52,5 +52,13 @@ with open(FILE, "rb") as f:
         if len(block) < BLOCKSIZE:
             break
     f.close()
-print("Calculated SHA1: {}".format(csum.hexdigest()))
-print("SHA1 in file   : {} (offset 0x{:x})".format(trailer[:20].hex(), trailer_pos))
+
+expected_sha1 = csum.hexdigest()
+found_sha1 = trailer[:20].hex()
+print("Calculated SHA1: {}".format(expected_sha1))
+print("SHA1 in file   : {} (offset 0x{:x})".format(found_sha1, trailer_pos))
+
+if expected_sha1 == found_sha1:
+    print("☑ CHECKSUM VALID.")
+else:
+    print("☒ CHECKSUM INVALID!!! (Or GCD or other type.)")
