@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import devices
-from binascii import hexlify
+from binascii import hexlify, unhexlify
 from struct import pack, unpack
 
 TLV_TYPES = {
@@ -101,7 +101,10 @@ class TLV:
         return data
 
     def load_dump(self, values):
-        pass
+        for (k, v) in values:
+            if k == "value":
+                self.value = unhexlify("".join(v.split(" ")))
+                self.length = len(self.value)
 
     @staticmethod
     def create_from_dump(values):
@@ -121,9 +124,9 @@ class TLV1(TLV):
         return data
 
     def load_dump(self, values):
-        for (k, v) in values:
-            if k == "value":
-                self.value = int(v, 0)
+        # Will be calculated in a final pass
+        self.value = 0x00
+        self.length = 1
 
 class TLV2(TLV):
     def dump(self):
@@ -132,6 +135,12 @@ class TLV2(TLV):
         data.append(("length", self.get_actual_length(), "Length of padding block"))
         return data
 
+    def load_dump(self, values):
+        for (k, v) in values:
+            if k == "length":
+                self.value = b"\x00" * int(v)
+                self.length = len(self.value)
+
 class TLV5(TLV):
     def dump(self):
         data = []
@@ -139,6 +148,16 @@ class TLV5(TLV):
         data.append(("length", self.get_actual_length(), None))
         data.append(("text", self.value.decode("utf-8"), None))
         return data
+
+    def load_dump(self, values):
+        for (k, v) in values:
+            if k == "text":
+                self.value = v.encode("utf-8")
+            elif k == "length":
+                self.length = int(v)
+        if len(self.value) != self.length:
+            print("WARNING: Imported copyright text doesn't match supposed length.")
+            self.length = len(self.value)
 
 class TLV6(TLV):
     """
