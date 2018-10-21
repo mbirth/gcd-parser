@@ -3,6 +3,8 @@
 
 from .chksum import ChkSum
 from .tlv import TLV, TLV6, TLV7
+from struct import unpack
+import configparser
 
 GCD_SIG = b"G\x41RM\x49Nd\00"
 DEFAULT_COPYRIGHT = b"Copyright 1996-2017 by G\x61rm\x69n Ltd. or its subsidiaries."
@@ -36,7 +38,8 @@ class Gcd:
             while True:
                 cur_offset = f.tell()
                 header = f.read(4)
-                tlv = TLV.factory(header, offset=cur_offset)
+                (type_id, length) = unpack("<HH", header)
+                tlv = TLV.factory(type_id, length, offset=cur_offset)
                 self.add_tlv(tlv)
                 if tlv.type_id == 0xFFFF:
                     # End of file reached
@@ -72,7 +75,8 @@ class Gcd:
                 print("#{:03d}: {}".format(i, tlv))
             else:
                 tlv_count += 1
-                tlv_length += tlv.length
+                if tlv.length is not None:
+                    tlv_length += tlv.length
             last_tlv = tlv.type_id
 
     def validate(self, print_stats: bool=False):
@@ -112,7 +116,7 @@ class Gcd:
             f.write("# {}\n".format(comment))
         f.write("{} = {}\n".format(key, value))
 
-    def dump(self, output_basename: str):
+    def dump_to_files(self, output_basename: str):
         output_file = "{}.rcp".format(output_basename)
         ctr = 0
         last_filename = None
@@ -148,3 +152,27 @@ class Gcd:
                             self.write_dump_param(f, item[0], item[1], item[2])
                 ctr += 1
             f.close()
+
+    @staticmethod
+    def from_recipe(recipe_file: str):
+        gcd = Gcd()
+        rcp = configparser.ConfigParser()
+        rcp.read(recipe_file)
+        if rcp["GCD_DUMP"]["dump_by"] != "grmn-gcd":
+            raise ParseException("Recipe file invalid.")
+        if rcp["GCD_DUMP"]["dump_ver"] != "1":
+            raise ParseException("Recipe file wrong version.")
+        for s in rcp.sections():
+            if s == "GCD_DUMP":
+                continue
+            print("Parsing {}".format(s))
+            if "from_file" in rcp[s]:
+                # BINARY! Must create type 0006, 0007 and actual binary blocks
+                print("Binary block")
+            else:
+                params = []
+                for k in rcp[s]:
+                    params.append((k, rcp[s][k]))
+                tlv = TLV.create_from_dump(params)
+                gcd.struct.append(tlv)
+        return gcd

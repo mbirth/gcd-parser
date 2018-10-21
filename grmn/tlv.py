@@ -33,8 +33,7 @@ class TLV:
             self.value = bytes(value)
 
     @staticmethod
-    def factory(header: bytes, offset: int = None):
-        (type_id, length) = unpack("<HH", header)
+    def factory(type_id: int, length: int = None, offset: int = None):
         if type_id == 0x0001:
             new_tlv = TLV1(type_id, length)
         elif type_id == 0x0002:
@@ -57,7 +56,13 @@ class TLV:
         plural = ""
         if self.length != 1:
             plural = "s"
-        return "TLV Type {:04x} at 0x{:x}, {:d} Byte{} - {}".format(self.type_id, self.offset, self.length, plural, self.comment)
+        offset = ""
+        if self.offset:
+            offset = " at 0x{:x}".format(self.offset)
+        lenstr = ""
+        if self.length:
+            lenstr = ", {:d} Byte{}".format(self.length, plural)
+        return "TLV Type {:04x}{}{} - {}".format(self.type_id, offset, lenstr, self.comment)
 
     def set_value(self, new_value: bytes):
         self.value = new_value
@@ -95,16 +100,30 @@ class TLV:
             data.append(("value", hexstr, None))
         return data
 
+    def load_dump(self, values):
+        pass
+
     @staticmethod
     def create_from_dump(values):
         """Use data exported with dump() to recreate object."""
-        pass
+        tlv = None
+        for (k, v) in values:
+            if k == "type":
+                type_id = int(v, 0)
+        tlv = TLV.factory(type_id)
+        tlv.load_dump(values)
+        return tlv
 
 class TLV1(TLV):
     def dump(self):
         data = []
         data.append(("type", "0x{:04x}".format(self.type_id), self.comment))
         return data
+
+    def load_dump(self, values):
+        for (k, v) in values:
+            if k == "value":
+                self.value = int(v, 0)
 
 class TLV2(TLV):
     def dump(self):
