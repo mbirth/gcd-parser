@@ -140,6 +140,7 @@ class TLV2(TLV):
             if k == "length":
                 self.value = b"\x00" * int(v)
                 self.length = len(self.value)
+                break
 
 class TLV5(TLV):
     def dump(self):

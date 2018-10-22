@@ -108,6 +108,18 @@ class Gcd:
                 print("☒ ONE OR MORE CHECKSUMS INVALID!")
         return all_ok
 
+    def fix_checksums(self):
+        chksum = ChkSum()
+        chksum.add(GCD_SIG)
+        for tlv in self.struct:
+            if tlv.type_id == 0x0001:
+                chksum.add(b"\x01\x00\x01\x00")
+                expected_cs = chksum.get()
+                tlv.value = bytes([expected_cs])
+                chksum.add(bytes([expected_cs]))
+            else:
+                chksum.add(tlv.get())
+
     def write_dump_block(self, f, name):
         f.write("\n[BLOCK_{}]\n".format(name))
     
@@ -193,12 +205,17 @@ class Gcd:
                         if len(read_bytes) < 0xff00:
                             break
                     bf.close()
-                
-                print("Binary block")
             else:
                 tlv = TLV.create_from_dump(params)
                 gcd.struct.append(tlv)
+        gcd.fix_checksums()
         return gcd
 
     def save(self, filename):
         self.filename = filename
+        with open(filename, "wb") as f:
+            f.write(GCD_SIG)
+            for tlv in self.struct:
+                f.write(tlv.get())
+            f.write(b"\xff\xff\x00\x00")   # footer
+            f.close()

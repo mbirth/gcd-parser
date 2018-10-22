@@ -18,5 +18,5 @@ OUTFILE = sys.argv[2]
 print("Opening recipe {}".format(RECIPE))
 gcd = Gcd.from_recipe(RECIPE)
 gcd.print_struct()
-#print("Dumping to {}".format(OUTFILE))
-#gcd.write_to_file(OUTFILE)
+print("Dumping to {}".format(OUTFILE))
+gcd.save(OUTFILE)
