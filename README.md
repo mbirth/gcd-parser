@@ -17,7 +17,7 @@ Most info from:
 Tools
 -----
 
-### gcdstruct.py <gcdfile>
+### gcdstruct.py [gcdfile]
 
 Will show the general structure of the GCD file and also validate the contained checksums, e.g.:
 
@@ -86,7 +86,7 @@ TLV0001 at 0x94dab6: c7 (expected: c7) = OK
 ```
 
 
-### gcksum.py <binfile>
+### gcksum.py [binfile]
 
 Will calculate and verify the trailing byte for binary files, e.g.:
 
@@ -99,7 +99,7 @@ Last byte: f2
 ```
 
 
-### binsum.py <binfile>
+### binsum.py [binfile]
 
 Will calculate and verify the SHA1 checksum of (Fenix?) firmware files, e.g.:
 
@@ -114,7 +114,9 @@ SHA1 in file   : f0d31379e0de29d3710e815570d346c5dda4ef9a (offset 0x8d1bbc)
 ```
 
 
-### gcddump.py <gcdfile> <basename>
+### gcddump.py [gcdfile] [basename]
+
+**Note:** Second parameter doesn't have an extension!
 
 Extracts binaries from GCD file and also creates a "recipe" file from which the GCD can be rebuilt, e.g.:
 
@@ -133,7 +135,7 @@ Will write 3 files:
 The recipe is human-readable. And while the block titles (e.g. `[BLOCK_234]`) are ignored, the order of the blocks in the file is important.
 
 
-### gcdcompile.py <recipefile> <gcdfile>
+### gcdcompile.py [recipefile] [gcdfile]
 
 Creates a GCD file from the given recipe, e.g.:
 
