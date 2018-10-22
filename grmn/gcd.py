@@ -2,7 +2,7 @@
 # Thanks to TurboCCC and kunix for all your work!
 
 from .chksum import ChkSum
-from .tlv import TLV, TLV6, TLV7
+from .tlv import TLV, TLV6, TLV7, TLVbinary
 from struct import unpack
 import configparser
 
@@ -166,13 +166,39 @@ class Gcd:
             if s == "GCD_DUMP":
                 continue
             print("Parsing {}".format(s))
+            params = []
+            for k in rcp[s]:
+                params.append((k, rcp[s][k]))
             if "from_file" in rcp[s]:
-                # BINARY! Must create type 0006, 0007 and actual binary blocks
+                # BINARY! Must create type 0006, 0007 and actual binary block(s)
+                tlv6 = TLV6(0x0006, None)
+                tlv6.load_dump(params)
+                gcd.struct.append(tlv6)
+
+                tlv7 = TLV7(0x0007, None)
+                tlv7.set_tlv6(tlv6)
+                tlv7.load_dump(params)
+                gcd.struct.append(tlv7)
+
+                tlv7.parse()
+                filename = rcp[s]["from_file"]
+                file_type_id = tlv7.binary_type_id
+
+                with open(filename, "rb") as bf:
+                    while True:
+                        read_bytes = bf.read(0xff00)
+                        btlv = TLVbinary(file_type_id, len(read_bytes))
+                        btlv.value = read_bytes
+                        gcd.struct.append(btlv)
+                        if len(read_bytes) < 0xff00:
+                            break
+                    bf.close()
+                
                 print("Binary block")
             else:
-                params = []
-                for k in rcp[s]:
-                    params.append((k, rcp[s][k]))
                 tlv = TLV.create_from_dump(params)
                 gcd.struct.append(tlv)
         return gcd
+
+    def save(self, filename):
+        self.filename = filename

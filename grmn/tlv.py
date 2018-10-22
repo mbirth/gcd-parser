@@ -180,20 +180,28 @@ class TLV6(TLV):
         0x5003: ["", "End of definition marker"],
     }
 
-    def parse(self):
-        if len(self.value) % 2 != 0:
-            raise Exception("Invalid TLV6 payload length!")
-
+    def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
+        super().__init__(type_id, expected_length, value, offset)
         self.fids = []
         self.format = ""
         self.fields = []
 
+    def add_fid(self, fid: int):
+        fdef = self.FIELD_TYPES[fid]
+        self.fids.append(fid)
+        self.format += fdef[0]
+        self.fields.append(fdef[1])
+
+    def parse(self):
+        if self.is_parsed:
+            # already parsed
+            return
+        if len(self.value) % 2 != 0:
+            raise Exception("Invalid TLV6 payload length!")
+
         for i in range(0, len(self.value), 2):
-            fid = unpack("H", self.value[i:i+2])[0]
-            fdef = self.FIELD_TYPES[fid]
-            self.fids.append(fid)
-            self.format += fdef[0]
-            self.fields.append(fdef[1])
+            fid = unpack("<H", self.value[i:i+2])[0]
+            self.add_fid(fid)
 
         self.is_parsed = True
 
@@ -209,16 +217,32 @@ class TLV6(TLV):
         # Dump nothing as important info will be chained in binary dump
         return []
 
+    def load_dump(self, values):
+        self.value = b""
+        for (k, v) in values:
+            if k == "from_file":
+                continue
+            elif k[0:2] != "0x":
+                continue
+            fid = int(k, 0)
+            self.value += pack("<H", fid)
+        self.value += pack("<H", 0x5003)
+        self.length = len(self.value)
+
 class TLV7(TLV):
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
         super().__init__(type_id, expected_length, value, offset)
         self.tlv6 = None
+        self.binary_type_id = None
         self.attr = []
 
     def set_tlv6(self, tlv6: TLV6):
         self.tlv6 = tlv6
 
     def parse(self):
+        if self.is_parsed:
+            # already parsed
+            return
         if not self.tlv6.is_parsed:
             # Make sure we have the structure analysed
             self.tlv6.parse()
@@ -226,6 +250,8 @@ class TLV7(TLV):
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
             self.attr.append((fid, v))
+            if fid == 0x100a:
+                self.binary_type_id = v
         self.is_parsed = True
 
     def __str__(self):
@@ -246,6 +272,22 @@ class TLV7(TLV):
     def dump(self):
         # Dump nothing as important info will be chained in binary dump
         return []
+
+    def load_dump(self, values):
+        self.value = b""
+        new_values = []
+        for (k, v) in values:
+            if k == "from_file":
+                continue
+            elif k[0:2] != "0x":
+                continue
+            numval = int(v, 0)
+            new_values.append(numval)
+        if not self.tlv6.is_parsed:
+            # Make sure we have the structure analysed (need format attr)
+            self.tlv6.parse()
+        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.length = len(self.value)
 
 class TLVbinary(TLV):
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
