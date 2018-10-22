@@ -200,6 +200,9 @@ class TLV6(TLV):
         if len(self.value) % 2 != 0:
             raise Exception("Invalid TLV6 payload length!")
 
+        self.fids = []
+        self.format = ""
+        self.fields = []
         for i in range(0, len(self.value), 2):
             fid = unpack("<H", self.value[i:i+2])[0]
             self.add_fid(fid)
@@ -247,6 +250,7 @@ class TLV7(TLV):
         if not self.tlv6.is_parsed:
             # Make sure we have the structure analysed
             self.tlv6.parse()
+        self.attr = []
         values = unpack("<" + self.tlv6.format, self.value)
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
@@ -269,6 +273,19 @@ class TLV7(TLV):
             else:
                 txt += "\n  - Field {:d}: {:>20}: 0x{:04x} / {:d}".format(i+1, fdesc, v, v)
         return txt
+
+    def set_binary_length(self, new_length):
+        self.tlv6.parse()
+        values = unpack("<" + self.tlv6.format, self.value)
+        new_values = []
+        for i, v in enumerate(values):
+            fid = self.tlv6.fids[i]
+            if fid == 0x2015:
+                new_values.append(new_length)
+            else:
+                new_values.append(v)
+        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.is_parsed = False
 
     def dump(self):
         # Dump nothing as important info will be chained in binary dump

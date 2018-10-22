@@ -196,15 +196,18 @@ class Gcd:
                 filename = rcp[s]["from_file"]
                 file_type_id = tlv7.binary_type_id
 
+                running_count = 0
                 with open(filename, "rb") as bf:
                     while True:
                         read_bytes = bf.read(0xff00)
                         btlv = TLVbinary(file_type_id, len(read_bytes))
                         btlv.value = read_bytes
                         gcd.struct.append(btlv)
+                        running_count += len(read_bytes)
                         if len(read_bytes) < 0xff00:
                             break
                     bf.close()
+                tlv7.set_binary_length(running_count)
             else:
                 tlv = TLV.create_from_dump(params)
                 gcd.struct.append(tlv)
