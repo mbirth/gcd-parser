@@ -44,7 +44,10 @@ class TLV:
             new_tlv = TLV6(type_id, length)
         elif type_id == 0x0007:
             new_tlv = TLV7(type_id, length)
-        elif type_id in [0x0008, 0x0401, 0x0505, 0x0555, 0x0557, 0x02bd]:
+        elif type_id == 0x0401:
+            new_tlv = TLVbinary0401(type_id, length)
+            new_tlv.is_binary = True
+        elif type_id in [0x0008, 0x0505, 0x0555, 0x0557, 0x02bd]:
             new_tlv = TLVbinary(type_id, length)
             new_tlv.is_binary = True
         else:
@@ -332,3 +335,16 @@ class TLVbinary(TLV):
                 valstr = "0x{:08x}".format(v)
             data.append(("0x{:04x}".format(fid), valstr, fdesc))
         return data
+
+class TLVbinary0401(TLVbinary):
+    def __str__(self):
+        txt = super().__str__()
+        hdr = unpack("<H", self.value[0:2])[0]
+        if hdr == 0xffff:
+            version = unpack("<H", self.value[4:6])[0]
+            sku = self.value[10:20].decode("utf-8")
+            txt += "\n  - SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
+            txt += "\n  - Version: {}".format(version)
+        #if not self.is_parsed:
+        #    self.parse()
+        return txt
