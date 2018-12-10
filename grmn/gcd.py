@@ -10,7 +10,7 @@ GCD_SIG = b"G\x41RM\x49Nd\00"
 DEFAULT_COPYRIGHT = b"Copyright 1996-2017 by G\x61rm\x69n Ltd. or its subsidiaries."
 DEFAULT_FIRST_PADDING = 21
 DEFAULT_ALIGN = 0x1000    # second padding block pads until 0x1000
-MAX_BLOCK_LENGTH = 0xff00   # binary blocks max len
+MAX_BLOCK_LENGTH = 0xff00   # binary blocks max len (0xff40 for some blocks)
 
 # Typical structure:
 # first 0x1000 Bytes: GCD_SIG > 0x0001 > 0x0002 > 0x0003 > 0x0005 > 0x0001 > 0x0002
@@ -199,12 +199,12 @@ class Gcd:
                 running_count = 0
                 with open(filename, "rb") as bf:
                     while True:
-                        read_bytes = bf.read(0xff00)
+                        read_bytes = bf.read(MAX_BLOCK_LENGTH)
                         btlv = TLVbinary(file_type_id, len(read_bytes))
                         btlv.value = read_bytes
                         gcd.struct.append(btlv)
                         running_count += len(read_bytes)
-                        if len(read_bytes) < 0xff00:
+                        if len(read_bytes) < MAX_BLOCK_LENGTH:
                             break
                     bf.close()
                 tlv7.set_binary_length(running_count)
