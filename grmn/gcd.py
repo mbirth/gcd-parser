@@ -141,22 +141,25 @@ class Gcd:
             f.write("# Lengths are informational only, they will be calculated upon reassembly.\n")
             for tlv in self.struct:
                 if tlv.is_binary:
-                    outfile = "{}_{:04x}.bin".format(output_basename, tlv.type_id)
-                    if outfile != last_filename:
+                    if outfile is None:
+                        outfile = "{}_{:04x}_{:x}.bin".format(output_basename, tlv.type_id, tlv.offset)
                         self.write_dump_block(f, str(ctr))
                         self.write_dump_param(f, "from_file", outfile)
                         for item in tlv.dump():
                             self.write_dump_param(f, item[0], item[1], item[2])
-                        last_filename = outfile
                         with open(outfile, "wb") as of:
                             of.write(tlv.value)
                     else:
                         with open(outfile, "ab") as of:
                             of.write(tlv.value)
+#                        if tlv.length < MAX_BLOCK_LENGTH:
+#                            # Reset outfile name, so should new binary block begin, dump that to new file
+#                            outfile = None
                 elif tlv.type_id == 0xffff:
                     # EOF marker
                     pass
                 else:
+                    outfile = None
                     tlvinfo = tlv.dump()
                     if len(tlvinfo) > 0:
                         self.write_dump_block(f, str(ctr))
