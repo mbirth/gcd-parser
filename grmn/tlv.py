@@ -343,8 +343,10 @@ class TLVbinary0401(TLVbinary):
         if hdr == 0xffff:
             version = unpack("<H", self.value[4:6])[0]
             sku = self.value[10:20].decode("utf-8")
-            txt += "\n  - SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
-            txt += "\n  - Version: {}".format(version)
+            hwid = int(sku[4:8])
+            txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
+            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, "Unknown device"))
+            txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
         #if not self.is_parsed:
         #    self.parse()
         return txt
