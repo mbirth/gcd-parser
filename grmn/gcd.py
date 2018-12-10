@@ -79,6 +79,13 @@ class Gcd:
                     tlv_length += tlv.length
             last_tlv = tlv.type_id
 
+    def print_struct_full(self):
+        """
+        Prints the structure of the parsed GCD file
+        """
+        for i, tlv in enumerate(self.struct):
+            print("#{:03d}: {}".format(i, tlv))
+
     def validate(self, print_stats: bool=False):
         """
         Checks and verifies all checksums in the GCD.
@@ -122,7 +129,7 @@ class Gcd:
 
     def write_dump_block(self, f, name):
         f.write("\n[BLOCK_{}]\n".format(name))
-    
+
     def write_dump_param(self, f, key, value, comment=None):
         if comment is not None:
             f.write("# {}\n".format(comment))
