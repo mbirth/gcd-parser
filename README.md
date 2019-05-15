@@ -141,7 +141,6 @@ Creates a GCD file from the given recipe, e.g.:
 
 ```
 $ ./gcdcompile.py f5p_v510.rcp fenix5Plus_510_new.gcd
-$ ./gcdcompile.py f5p_v510.rcp fenix5Plus_510_new.gcd
 Opening recipe f5p_v510.rcp
 Parsing BLOCK_0
 Parsing BLOCK_1

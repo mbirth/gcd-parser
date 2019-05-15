@@ -646,7 +646,7 @@ DEVICES = {
     2927: "vivosmart 4",
     2945: "vivomove HR, APAC",
     2956: "Alpha 50 CHN",
-    2957: "Firmware for MT3333 GPS",
+    2957: "Firmware for MT3333 GPS (Chipset Type M5)",
     2962: "Approach X10",
     2976: "vivoactive 3, APAC",
     2977: "Forerunner 30 APAC",
@@ -677,5 +677,7 @@ DEVICES = {
     3197: "D2 Delta S",
     3198: "D2 Delta PX",
     3218: "Vivosmart 4, APAC",
+    3246: "MARQ series (non-Aviator)",
+    3247: "MARQ Aviator",
     3260: "D2 Delta ANT_BT_BLE Firmware",
 }
