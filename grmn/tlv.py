@@ -12,13 +12,23 @@ TLV_TYPES = {
     0x0006: "Block Type 7 format definition",
     0x0007: "Binary descriptor",
     0x0008: "Binary Region 0C (boot.bin)",
-    0x0401: "Binary Component Firmware (SensorHub, ANT_BLE_BT, GPS, WiFi)",
-    0x0505: "Binary Region 05",
-    0x0555: "Binary Region 55",
-    0x0557: "Binary Region 57",
     0x02bd: "Binary Region 0E (fw_all.bin)",
+    0x0401: "Binary Component Firmware (SensorHub, ANT_BLE_BT, GPS, WiFi)",
+    0x0505: "Binary Region 05 (main firmware)",
+    0x0510: "Binary Region 10 (logo)",
+    0x0533: "Binary Region 33 (dskimg)",
+    0x0555: "Binary Region 55 (fw)",
+    0x0557: "Binary Region 57",
+    0x0566: "Binary Region 66 (files.bin)",
+    0x057f: "Binary Region 7f (resources)",
+    0x059e: "Binary Region 9e (resources)",
+    0x07d1: "Binary ???",
+    0x07d2: "Binary ???",
+    0x07d3: "Binary ???",
     0xffff: "EOF marker",
 }
+
+BINARY_TLVS = [0x0008, 0x02bd, 0x0505, 0x0510, 0x0533, 0x0555, 0x0557, 0x0566, 0x057f, 0x059e, 0x07d1, 0x07d2, 0x07d3]
 
 class TLV:
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
@@ -47,7 +57,7 @@ class TLV:
         elif type_id == 0x0401:
             new_tlv = TLVbinary0401(type_id, length)
             new_tlv.is_binary = True
-        elif type_id in [0x0008, 0x0505, 0x0555, 0x0557, 0x02bd]:
+        elif type_id in BINARY_TLVS:
             new_tlv = TLVbinary(type_id, length)
             new_tlv.is_binary = True
         else:
@@ -174,13 +184,26 @@ class TLV6(TLV):
     FIELD_TYPES = {
         0x000a: ["B", "XOR flag/value"],
         0x000b: ["B", "Reset/Downgrade flag"],
+        0x000c: ["B", "Field 000c"],
+        0x0020: ["B", "Field 0020"],
         0x1009: ["H", "Device hw_id"],
         0x100a: ["H", "Block type"],
         0x100d: ["H", "Firmware version"],
+        0x100e: ["H", "Field 100e"],
+        0x100f: ["H", "Field 100f"],
+        0x1010: ["H", "Field 1010"],
+        0x1011: ["H", "Field 1011"],
+        0x1012: ["H", "Field 1012"],
+        0x1013: ["H", "Field 1013"],
         0x1014: ["H", "Field 1014"],
         0x1015: ["H", "Field 1015"],
         0x1016: ["H", "Field 1016 (WiFi fw)"],
         0x2015: ["L", "Binary length"],
+        0x2017: ["L", "Field 2017"],
+        0x2018: ["L", "Field 2018"],
+        0x2019: ["L", "Field 2019"],
+        0x201a: ["L", "Field 201a"],
+        0x4007: ["31s", "Field 4007"],   # WTF? 31 Bytes long
         0x5003: ["", "End of definition marker"],
     }
 
@@ -216,8 +239,10 @@ class TLV6(TLV):
         txt = super().__str__()
         if not self.is_parsed:
             self.parse()
+        txt += "\n  - Field list:"
         for i, fid in enumerate(self.fids):
-            txt += "\n  - Field {:d}: {:04x} - {}".format(i+1, fid, self.fields[i])
+            #txt += "\n  - Field {:d}: {:04x} - {}".format(i+1, fid, self.fields[i])
+            txt += " {:04x}".format(fid)
         return txt
 
     def dump(self):
@@ -254,6 +279,9 @@ class TLV7(TLV):
             # Make sure we have the structure analysed
             self.tlv6.parse()
         self.attr = []
+        #print("Got {} Bytes.".format(len(self.value)))
+        #print("Format: {}".format(self.tlv6.format))
+        #print(repr(self.value))
         values = unpack("<" + self.tlv6.format, self.value)
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
@@ -270,11 +298,13 @@ class TLV7(TLV):
             fdesc = self.tlv6.fields[i]
             (fid, v) = pair
             if fid == 0x1009:
-                txt += "\n  - Field {:d}: {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fdesc, v, v, devices.DEVICES.get(v, "Unknown device"))
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.DEVICES.get(v, "Unknown device"))
             elif fid == 0x2015:
-                txt += "\n  - Field {:d}: {:>20}: {} Bytes".format(i+1, fdesc, v)
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: {} Bytes".format(i+1, fid, fdesc, v)
+            elif fid == 0x4007:
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: {}".format(i+1, fid, fdesc, hexlify(v).decode("utf-8"))
             else:
-                txt += "\n  - Field {:d}: {:>20}: 0x{:04x} / {:d}".format(i+1, fdesc, v, v)
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d}".format(i+1, fid, fdesc, v, v)
         return txt
 
     def set_binary_length(self, new_length):
@@ -331,6 +361,10 @@ class TLVbinary(TLV):
                 valstr = "0x{:02x}".format(v)
             elif valtype == "H":
                 valstr = "0x{:04x}".format(v)
+            elif valtype == "Q":
+                valstr = "0x{:08x}".format(v)
+            elif valtype == "31s":
+                valstr = repr(v)
             else:
                 valstr = "0x{:08x}".format(v)
             data.append(("0x{:04x}".format(fid), valstr, fdesc))
@@ -339,14 +373,17 @@ class TLVbinary(TLV):
 class TLVbinary0401(TLVbinary):
     def __str__(self):
         txt = super().__str__()
-        hdr = unpack("<H", self.value[0:2])[0]
-        if hdr == 0xffff:
+        hdr1 = unpack("<H", self.value[0:2])[0]
+        hdr2 = unpack("<H", self.value[2:4])[0]
+        if hdr1 == 0xffff or hdr2 == 0xffff:
             version = unpack("<H", self.value[4:6])[0]
             sku = self.value[10:20].decode("utf-8")
             hwid = int(sku[4:8])
             txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
             txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, "Unknown device"))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
+        else:
+            txt = "Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
         #if not self.is_parsed:
         #    self.parse()
         return txt
