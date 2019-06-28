@@ -3,6 +3,7 @@
 from . import devices
 from binascii import hexlify, unhexlify
 from struct import pack, unpack
+import sys
 
 TLV_TYPES = {
     0x0001: "Checksum rectifier",
@@ -17,28 +18,44 @@ TLV_TYPES = {
     0x0505: "Binary Region 05 (main firmware)",
     0x0510: "Binary Region 10 (logo)",
     0x051b: "Binary Region 1b",
+    0x052b: "Binary Region 2b",
     0x0533: "Binary Region 33 (dskimg)",
+    0x0549: "Binary Region 49",
     0x0555: "Binary Region 55 (fw)",
+    0x0556: "Binary Region 56",
     0x0557: "Binary Region 57",
     0x0566: "Binary Region 66 (files.bin)",
     0x057f: "Binary Region 7f (resources)",
+    0x0588: "Binary Region 88",
+    0x0590: "Binary Region 90",
     0x0595: "Binary Region 95",
     0x0599: "Binary Region 99",
     0x059e: "Binary Region 9e (resources)",
-    0x07d1: "Binary ???",
-    0x07d2: "Binary ???",
-    0x07d3: "Binary ???",
+    0x05a2: "Binary Region a2",
+    0x05ab: "Binary Region ab",
+    0x05f5: "Binary Region f5",
+    0x05f9: "Binary Region f9",
+    0x05fa: "Binary Region fa",
+    0x05fb: "Binary Region fb",
+    0x05fc: "Binary Region fc",
+    0x05fd: "Binary Region fd",
+    0x05fe: "Binary Region fe",
+    0x07d1: "Binary 07d1",
+    0x07d2: "Binary 07d2",
+    0x07d3: "Binary 07d3",
     0xffff: "EOF marker",
 }
 
-BINARY_TLVS = [0x0008, 0x02bd, 0x0505, 0x0510, 0x0533, 0x0555, 0x0557, 0x0566, 0x057f, 0x059e, 0x07d1, 0x07d2, 0x07d3]
+BINARY_TLVS = [ 0x0008, 0x02bd, 0x0505, 0x0510, 0x051b, 0x052b, 0x0533, 0x0549, 0x0555, 0x0556,
+                0x0557, 0x0566, 0x057f, 0x0588, 0x0590, 0x0595, 0x0599, 0x059e, 0x05a2, 0x05ab,
+                0x05f5, 0x05f9, 0x05fa, 0x05fb, 0x05fc, 0x05fd, 0x05fe, 0x07d1, 0x07d2, 0x07d3 ]
 
 class TLV:
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
         self.type_id = type_id
         self.is_binary = False
         self.offset = offset
-        self.comment = TLV_TYPES.get(type_id, "Type {:04x} / {:d}".format(type_id, type_id))
+        self.comment = TLV_TYPES.get(type_id, RED + "Type {:04x} / {:d}".format(type_id, type_id) + RESET)
         self.length = expected_length
         self.value = None
         self.is_parsed = False
@@ -387,7 +404,7 @@ class TLVbinary0401(TLVbinary):
             txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, "Unknown device"))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
         else:
-            txt = "Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
+            txt += "\n  - Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
         #if not self.is_parsed:
         #    self.parse()
         return txt

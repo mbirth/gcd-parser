@@ -5,6 +5,7 @@ from .chksum import ChkSum
 from .tlv import TLV, TLV6, TLV7, TLVbinary
 from struct import unpack
 import configparser
+import sys
 
 GCD_SIG = b"G\x41RM\x49Nd\00"
 DEFAULT_COPYRIGHT = b"Copyright 1996-2017 by G\x61rm\x69n Ltd. or its subsidiaries."
