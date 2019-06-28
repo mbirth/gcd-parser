@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Thanks to TurboCCC and kunix for all your work!
 
+from .ansi import RED, GREEN, RESET
 from .chksum import ChkSum
 from .tlv import TLV, TLV6, TLV7, TLVbinary
 from struct import unpack
@@ -35,10 +36,14 @@ class Gcd:
         with open(self.filename, "rb") as f:
             sig = f.read(8)
             if sig != GCD_SIG:
-                raise ParseException("Signature mismatch ({}, should be {})!".format(repr(sig), repr(GCD_SIG)))
+                raise ParseException(RED + "Signature mismatch ({}, should be {})!".format(repr(sig) + RESET, repr(GCD_SIG)))
             while True:
                 cur_offset = f.tell()
                 header = f.read(4)
+                if len(header) < 4:
+                    #raise ParseException("File truncated. End marker not reached yet.")
+                    print(RED + "WARNING: File truncated. End marker not reached yet. (pos={})".format(f.tell()) + RESET, file=sys.stderr)
+                    break
                 (type_id, length) = unpack("<HH", header)
                 tlv = TLV.factory(type_id, length, offset=cur_offset)
                 self.add_tlv(tlv)
@@ -103,17 +108,17 @@ class Gcd:
                 file_cs = chksum.get_last_byte()
                 if print_stats:
                     if expected_cs == file_cs:
-                        state = "OK"
+                        state = GREEN + "OK" + RESET
                     else:
-                        state = "INVALID"
+                        state = RED + "INVALID" + RESET
                     print("TLV{:04x} at 0x{:x}: {:02x} (expected: {:02x}) = {}".format(tlv.type_id, tlv.offset, file_cs, expected_cs, state))
                 if expected_cs != file_cs:
                     all_ok = False
         if print_stats:
             if all_ok:
-                print("☑ ALL CHECKSUMS VALID.")
+                print(GREEN + "☑ ALL CHECKSUMS VALID." + RESET)
             else:
-                print("☒ ONE OR MORE CHECKSUMS INVALID!")
+                print(RED + "☒ ONE OR MORE CHECKSUMS INVALID!" + RESET)
         return all_ok
 
     def fix_checksums(self):
@@ -182,9 +187,9 @@ class Gcd:
         rcp = configparser.ConfigParser()
         rcp.read(recipe_file)
         if rcp["GCD_DUMP"]["dump_by"] != "grmn-gcd":
-            raise ParseException("Recipe file invalid.")
+            raise ParseException(RED + "Recipe file invalid." + RESET)
         if rcp["GCD_DUMP"]["dump_ver"] != "1":
-            raise ParseException("Recipe file wrong version.")
+            raise ParseException(RED + "Recipe file wrong version." + RESET)
         for s in rcp.sections():
             if s == "GCD_DUMP":
                 continue

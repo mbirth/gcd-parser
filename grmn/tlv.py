@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import devices
+from .ansi import RESET, RED
 from binascii import hexlify, unhexlify
 from struct import pack, unpack
 import sys
@@ -190,7 +191,7 @@ class TLV5(TLV):
             elif k == "length":
                 self.length = int(v)
         if len(self.value) != self.length:
-            print("WARNING: Imported copyright text doesn't match supposed length.")
+            print(RED + "WARNING: Imported copyright text doesn't match supposed length." + RESET, file=sys.stderr)
             self.length = len(self.value)
 
 class TLV6(TLV):
@@ -245,7 +246,7 @@ class TLV6(TLV):
             # already parsed
             return
         if len(self.value) % 2 != 0:
-            raise Exception("Invalid TLV6 payload length!")
+            raise Exception(RED + "Invalid TLV6 payload length!" + RESET)
 
         self.fids = []
         self.format = ""
@@ -319,7 +320,7 @@ class TLV7(TLV):
             fdesc = self.tlv6.fields[i]
             (fid, v) = pair
             if fid == 0x1009:
-                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.DEVICES.get(v, "Unknown device"))
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.DEVICES.get(v, RED + "Unknown device" + RESET))
             elif fid == 0x2015:
                 txt += "\n  - Field {:d} ({:04x}): {:>20}: {} Bytes".format(i+1, fid, fdesc, v)
             elif fid == 0x4007:
@@ -401,7 +402,7 @@ class TLVbinary0401(TLVbinary):
             sku = self.value[10:20].decode("utf-8")
             hwid = int(sku[4:8])
             txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
-            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, "Unknown device"))
+            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, RED + "Unknown device" + RESET))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
         else:
             txt += "\n  - Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
