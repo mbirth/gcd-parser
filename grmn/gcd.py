@@ -6,6 +6,7 @@ from .chksum import ChkSum
 from .tlv import TLV, TLV6, TLV7, TLVbinary
 from struct import unpack
 import configparser
+import os
 import sys
 
 GCD_SIG = b"G\x41RM\x49Nd\00"
@@ -25,7 +26,10 @@ class Gcd:
     def __init__(self, filename: str=None):
         self.filename = filename
         self.struct = []
+        self.is_truncated = False
+        self.has_trailing = False
         if filename is not None:
+            self.file_len = os.path.getsize(self.filename)
             self.load()
 
     def load(self):
@@ -41,6 +45,7 @@ class Gcd:
                 cur_offset = f.tell()
                 header = f.read(4)
                 if len(header) < 4:
+                    self.is_truncated = True
                     #raise ParseException("File truncated. End marker not reached yet.")
                     print(RED + "WARNING: File truncated. End marker not reached yet. (pos={})".format(f.tell()) + RESET, file=sys.stderr)
                     break
@@ -48,7 +53,7 @@ class Gcd:
                 tlv = TLV.factory(type_id, length, offset=cur_offset)
                 self.add_tlv(tlv)
                 if tlv.type_id == 0xFFFF:
-                    # End of file reached
+                    # End of TLV structure reached
                     break
                 tlength = tlv.length
                 payload = f.read(tlength)
@@ -60,6 +65,10 @@ class Gcd:
                     last_tlv7 = tlv
                 elif tlv.is_binary:
                     tlv.set_tlv7(last_tlv7)
+            self.end_offset = f.tell()
+            self.trailing_bytes = self.file_len - self.end_offset
+            if (self.trailing_bytes > 0):
+                self.has_trailing = True
             f.close()
 
     def add_tlv(self, new_tlv: TLV):
@@ -67,7 +76,7 @@ class Gcd:
 
     def print_struct(self):
         """
-        Prints the structure of the parsed GCD file
+        Prints the structure of the parsed GCD file with compact format for binary data.
         """
         last_tlv = 0xffff
         tlv_count = 0
@@ -84,13 +93,17 @@ class Gcd:
                 if tlv.length is not None:
                     tlv_length += tlv.length
             last_tlv = tlv.type_id
+        if (self.has_trailing):
+            print(RED + "WARNING: {} trailing Bytes. Probably a signed firmware.".format(self.trailing_bytes) + RESET, file=sys.stderr)
 
     def print_struct_full(self):
         """
-        Prints the structure of the parsed GCD file
+        Prints the detailed structure of the parsed GCD file
         """
         for i, tlv in enumerate(self.struct):
             print("#{:03d}: {}".format(i, tlv))
+        if (self.has_trailing):
+            print(RED + "WARNING: {} trailing Bytes. Probably a signed firmware.".format(self.trailing_bytes) + RESET, file=sys.stderr)
 
     def validate(self, print_stats: bool=False):
         """
