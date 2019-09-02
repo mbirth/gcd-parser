@@ -395,9 +395,8 @@ class TLVbinary(TLV):
 class TLVbinary0401(TLVbinary):
     def __str__(self):
         txt = super().__str__()
-        hdr1 = unpack("<H", self.value[0:2])[0]
-        hdr2 = unpack("<H", self.value[2:4])[0]
-        if hdr1 == 0xffff or hdr2 == 0xffff:
+        skuprobe = self.value[10:14]
+        if skuprobe == b"006B":
             version = unpack("<H", self.value[4:6])[0]
             sku = self.value[10:20].decode("utf-8")
             hwid = int(sku[4:8])
