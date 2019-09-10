@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+"""
+Many thanks to Alex Whiter whom this work is based on.
+See https://github.com/AlexWhiter/GarminRelatedStuff/tree/master/GetFirmwareUpdates .
+"""
+
 from . import devices
 from .proto import GetAllUnitSoftwareUpdates_pb2
 from xml.dom.minidom import getDOMImplementation
@@ -53,6 +58,7 @@ class UpdateServer:
             v = doc.createElement("Version")
             self.dom_add_text(doc, v, "Major", "0")
             self.dom_add_text(doc, v, "Minor", "1")
+            uf.appendChild(v)
             self.dom_add_text(doc, uf, "Path", "GARMIN")
             self.dom_add_text(doc, uf, "FileName", "GUPDATE.GCD")
             msm.appendChild(uf)
@@ -134,7 +140,7 @@ class UpdateServer:
         data = {
             "req": requests_xml,
         }
-        print(repr(data))
+
         r = requests.post(WEBUPDATER_SOFTWAREUPDATE_URL, headers=headers, data=data)
 
         if r.status_code != 200:
