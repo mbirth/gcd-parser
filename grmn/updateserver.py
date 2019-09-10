@@ -64,6 +64,7 @@ class UpdateServer:
     def get_requests_xml(self, sku_numbers):
         dom = getDOMImplementation()
         doc = dom.createDocument(None, "Requests", None)
+        doc.standalone = False
 
         root = doc.documentElement
 
@@ -75,7 +76,6 @@ class UpdateServer:
             self.dom_add_text(doc, req, "TransferType", "USB")
 
             reg = doc.createElement("Region")
-
             self.dom_add_text(doc, reg, "RegionId", "14")
 
             ver = doc.createElement("Version")
