@@ -6,13 +6,20 @@ from xml.dom.minidom import getDOMImplementation
 import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
+WEBUPDATER_SOFTWAREUPDATE_URL = "https://www.garmin.com/support/WUSoftwareUpdate.jsp"
 GRMN_CLIENT_VERSION = "5.7.0.2"
 
 class UpdateServer:
 
     def query_updates(self, sku_numbers):
+        # Garmin Express Protobuf API
         device_xml = self.get_device_xml(sku_numbers)
         reply = self.get_unit_updates(device_xml)
+        print(reply)
+
+        # WebUpdater
+        requests_xml = self.get_requests_xml(sku_numbers)
+        reply = self.get_webupdater_softwareupdate(requests_xml)
         print(reply)
 
     def dom_add_text(self, doc, parent, elem_name, text):
@@ -51,7 +58,36 @@ class UpdateServer:
             msm.appendChild(uf)
         root.appendChild(msm)
 
-        xml = doc.toxml()
+        xml = doc.toxml("utf-8")
+        return xml
+
+    def get_requests_xml(self, sku_numbers):
+        dom = getDOMImplementation()
+        doc = dom.createDocument(None, "Requests", None)
+
+        root = doc.documentElement
+
+        root.setAttribute("xmlns", "http://www.garmin.com/xmlschemas/UnitSoftwareUpdate/v3")
+
+        for sku in sku_numbers:
+            req = doc.createElement("Request")
+            self.dom_add_text(doc, req, "PartNumber", sku)
+            self.dom_add_text(doc, req, "TransferType", "USB")
+
+            reg = doc.createElement("Region")
+
+            self.dom_add_text(doc, reg, "RegionId", "14")
+
+            ver = doc.createElement("Version")
+            self.dom_add_text(doc, ver, "VersionMajor", "0")
+            self.dom_add_text(doc, ver, "VersionMinor", "1")
+            self.dom_add_text(doc, ver, "BuildType", "Release")
+
+            reg.appendChild(ver)
+            req.appendChild(reg)
+            root.appendChild(req)
+
+        xml = doc.toxml("utf-8")
         return xml
 
     def get_unit_updates(self, device_xml):
@@ -89,3 +125,25 @@ class UpdateServer:
         reply.ParseFromString(r.content)
 
         return reply
+
+    def get_webupdater_softwareupdate(self, requests_xml):
+        headers = {
+            "User-Agent": "Undefined agent",
+        }
+
+        data = {
+            "req": requests_xml,
+        }
+        print(repr(data))
+        r = requests.post(WEBUPDATER_SOFTWAREUPDATE_URL, headers=headers, data=data)
+
+        if r.status_code != 200:
+            r.raise_for_status()
+            return None
+
+        #print(r.content)
+        with open("webupdaterreply.xml", "wb") as f:
+            f.write(r.content)
+            f.close()
+
+        return r.content
