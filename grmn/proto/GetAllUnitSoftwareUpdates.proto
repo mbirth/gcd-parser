@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+message GetAllUnitSoftwareUpdates {
+    message ClientData {
+        string client = 1;   // "express"
+        string language = 2;   // "en_US"
+        string client_platform = 3;   // "Windows"
+        string client_platform_version = 4;   // "601 Service Pack 1"
+    };
+
+    ClientData client_data = 1;
+    string device_xml = 2;
+}
+
+message GetAllUnitSoftwareUpdatesReply {
+    message UpdateInfo {
+        message FileInfo {
+            int64 UNKNOWN_NUM1 = 1;
+            string url = 2;
+            string md5 = 3;
+            int64 file_size = 4;
+        }
+
+        repeated string changelog = 1;
+        string device_name = 2;
+        string license_url = 3;
+        string update_file = 4;
+        int64 UNKNOWN_NUM5 = 5;
+        repeated FileInfo files_list = 6;
+        string product_sku = 8;
+        string fw_version = 9;
+        int64 UNKNOWN_FLAG10 = 10;
+        string language = 11;
+        int64 UNKNOWN_FLAG12 = 12;
+        string file_type = 14;
+        string UNKNOWN_STR15 = 15;
+    }
+    repeated UpdateInfo update_info = 1;
+}
