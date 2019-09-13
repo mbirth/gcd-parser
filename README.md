@@ -1,7 +1,7 @@
-GCD Parser
-==========
+Garmin Firmware Tools
+=====================
 
-This is a parser and some tools for working with GCD files (firmware updates from a well-known manufacturer).
+This is a parser and some tools for working with GCD files (firmware updates).
 
 It's in Python, so feel free to add cool new features and submit pull requests.
 
@@ -158,3 +158,12 @@ Dumping to fenix5Plus_510_new.gcd
 ```
 
 Checksums (in the GCD file, NOT in the binaries!) will be corrected automatically.
+
+
+### get_updates.py [hw_id1|sku1] [hw_id2|sku2] .. [hw_idN|skuN]
+
+Checks Express and WebUpdater for updates for the given hw_ids (1-4 digits) or full SKUs (###-X####-##).
+
+The first one is used as the main device in the query. Shouldn't make a big difference in the results, though.
+
+Special thanks to Alex W. for [his update check](https://github.com/AlexWhiter/GarminRelatedStuff).

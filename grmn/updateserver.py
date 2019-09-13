@@ -12,7 +12,7 @@ import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
 WEBUPDATER_SOFTWAREUPDATE_URL = "https://www.garmin.com/support/WUSoftwareUpdate.jsp"
-GRMN_CLIENT_VERSION = "5.7.0.2"
+GRMN_CLIENT_VERSION = "6.17.0.0"
 
 class UpdateServer:
 
@@ -123,9 +123,9 @@ class UpdateServer:
             return None
 
         #print(r.content)
-        with open("protoreply.bin", "wb") as f:
-            f.write(r.content)
-            f.close()
+        #with open("protoreply.bin", "wb") as f:
+        #    f.write(r.content)
+        #    f.close()
 
         reply = GetAllUnitSoftwareUpdates_pb2.GetAllUnitSoftwareUpdatesReply()
         reply.ParseFromString(r.content)
@@ -148,8 +148,8 @@ class UpdateServer:
             return None
 
         #print(r.content)
-        with open("webupdaterreply.xml", "wb") as f:
-            f.write(r.content)
-            f.close()
+        #with open("webupdaterreply.xml", "wb") as f:
+        #    f.write(r.content)
+        #    f.close()
 
         return r.content
