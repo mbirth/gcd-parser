@@ -14,18 +14,39 @@ PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi
 WEBUPDATER_SOFTWAREUPDATE_URL = "https://www.garmin.com/support/WUSoftwareUpdate.jsp"
 GRMN_CLIENT_VERSION = "6.17.0.0"
 
+class UpdateInfo:
+    def __init__(self):
+        pass
+
 class UpdateServer:
 
-    def query_updates(self, sku_numbers):
+    def __init__(self):
+        self.device_id = "2345678910"
+        self.unlock_codes = []
+        self.debug = False
+
+    def query_express(self, sku_numbers):
         # Garmin Express Protobuf API
         device_xml = self.get_device_xml(sku_numbers)
         reply = self.get_unit_updates(device_xml)
-        print(reply)
+        return reply
 
+    def query_webupdater(self, sku_numbers):
         # WebUpdater
         requests_xml = self.get_requests_xml(sku_numbers)
         reply = self.get_webupdater_softwareupdate(requests_xml)
-        print(reply)
+        return reply
+
+    def query_updates(self, sku_numbers, query_express=True, query_webupdater=True):
+        results = []
+
+        if query_express:
+            results.append(self.query_express(sku_numbers))
+
+        if query_webupdater:
+            results.append(self.query_webupdater(sku_numbers))
+
+        return results
 
     def dom_add_text(self, doc, parent, elem_name, text):
         e = doc.createElement(elem_name)
@@ -49,7 +70,12 @@ class UpdateServer:
         self.dom_add_text(doc, model, "Description", "-")
         root.appendChild(model)
 
-        self.dom_add_text(doc, root, "Id", "2345678910")
+        self.dom_add_text(doc, root, "Id", self.device_id)
+
+        for uc in self.unlock_codes:
+            ul = doc.createElement("Unlock")
+            self.dom_add_text(doc, ul, "Code", uc)
+            root.appendChild(ul)
 
         msm = doc.createElement("MassStorageMode")
         for sku in sku_numbers:
@@ -57,7 +83,7 @@ class UpdateServer:
             self.dom_add_text(doc, uf, "PartNumber", sku)
             v = doc.createElement("Version")
             self.dom_add_text(doc, v, "Major", "0")
-            self.dom_add_text(doc, v, "Minor", "1")
+            self.dom_add_text(doc, v, "Minor", "00")
             uf.appendChild(v)
             self.dom_add_text(doc, uf, "Path", "GARMIN")
             self.dom_add_text(doc, uf, "FileName", "GUPDATE.GCD")
@@ -105,6 +131,12 @@ class UpdateServer:
         query.device_xml = device_xml
         proto_msg = query.SerializeToString()
 
+        if self.debug:
+            #print(proto_msg)
+            with open("protorequest.bin", "wb") as f:
+                f.write(proto_msg)
+                f.close()
+
         headers = {
             "User-Agent": "Garmin Core Service Win - {}".format(GRMN_CLIENT_VERSION),
             "Garmin-Client-Name": "CoreService",
@@ -122,10 +154,11 @@ class UpdateServer:
             r.raise_for_status()
             return None
 
-        #print(r.content)
-        #with open("protoreply.bin", "wb") as f:
-        #    f.write(r.content)
-        #    f.close()
+        if self.debug:
+            #print(r.content)
+            with open("protoreply.bin", "wb") as f:
+                f.write(r.content)
+                f.close()
 
         reply = GetAllUnitSoftwareUpdates_pb2.GetAllUnitSoftwareUpdatesReply()
         reply.ParseFromString(r.content)
@@ -147,9 +180,10 @@ class UpdateServer:
             r.raise_for_status()
             return None
 
-        #print(r.content)
-        #with open("webupdaterreply.xml", "wb") as f:
-        #    f.write(r.content)
-        #    f.close()
+        if self.debug:
+            #print(r.content)
+            with open("webupdaterreply.xml", "wb") as f:
+                f.write(r.content)
+                f.close()
 
         return r.content
