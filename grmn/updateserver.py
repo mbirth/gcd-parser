@@ -225,9 +225,9 @@ class UpdateServer:
     def get_unit_updates(self, device_xml):
         query = GetAllUnitSoftwareUpdates_pb2.GetAllUnitSoftwareUpdates()
         query.client_data.client = "express"
-        query.client_data.language ="en_US"
+        query.client_data.language ="en_GB"
         query.client_data.client_platform = "Windows"
-        query.client_data.client_platform_version = "601 Service Pack 1"
+        query.client_data.client_platform_version = "1000 "
         query.device_xml = device_xml
         proto_msg = query.SerializeToString()
 
@@ -238,13 +238,13 @@ class UpdateServer:
                 f.close()
 
         headers = {
-            "User-Agent": "Garmin Core Service Win - {}".format(GRMN_CLIENT_VERSION),
-            "Garmin-Client-Name": "CoreService",
+            "User-Agent": "Garmin Express Win - {}".format(GRMN_CLIENT_VERSION),
+            "Garmin-Client-Name": "Express",
             "Garmin-Client-Version": GRMN_CLIENT_VERSION,
             "X-garmin-client-id": "EXPRESS",
             "Garmin-Client-Platform": "windows",
-            "Garmin-Client-Platform-Version": "601",
-            "Garmin-Client-Platform-Version-Revision": "1",
+            "Garmin-Client-Platform-Version": "1000",
+            "Garmin-Client-Platform-Version-Revision": "0",
             "Content-Type": "application/octet-stream",
         }
 
