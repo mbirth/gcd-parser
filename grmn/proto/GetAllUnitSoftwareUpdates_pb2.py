@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=_b('\n\x1fGetAllUnitSoftwareUpdates.proto\"\xd5\x01\n\x19GetAllUnitSoftwareUpdates\x12:\n\x0b\x63lient_data\x18\x01 \x01(\x0b\x32%.GetAllUnitSoftwareUpdates.ClientData\x12\x12\n\ndevice_xml\x18\x02 \x01(\t\x1ah\n\nClientData\x12\x0e\n\x06\x63lient\x18\x01 \x01(\t\x12\x10\n\x08language\x18\x02 \x01(\t\x12\x17\n\x0f\x63lient_platform\x18\x03 \x01(\t\x12\x1f\n\x17\x63lient_platform_version\x18\x04 \x01(\t\"\x85\x04\n\x1eGetAllUnitSoftwareUpdatesReply\x12?\n\x0bupdate_info\x18\x01 \x03(\x0b\x32*.GetAllUnitSoftwareUpdatesReply.UpdateInfo\x1a\xa1\x03\n\nUpdateInfo\x12\x11\n\tchangelog\x18\x01 \x03(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x13\n\x0blicense_url\x18\x03 \x01(\t\x12\x13\n\x0bupdate_file\x18\x04 \x01(\t\x12\x14\n\x0cUNKNOWN_NUM5\x18\x05 \x01(\x03\x12G\n\nfiles_list\x18\x06 \x03(\x0b\x32\x33.GetAllUnitSoftwareUpdatesReply.UpdateInfo.FileInfo\x12\x13\n\x0bproduct_sku\x18\x08 \x01(\t\x12\x12\n\nfw_version\x18\t \x01(\t\x12\x16\n\x0eUNKNOWN_FLAG10\x18\n \x01(\x03\x12\x10\n\x08language\x18\x0b \x01(\t\x12\x16\n\x0eUNKNOWN_FLAG12\x18\x0c \x01(\x03\x12\x11\n\tfile_type\x18\x0e \x01(\t\x12\x15\n\rUNKNOWN_STR15\x18\x0f \x01(\t\x1aM\n\x08\x46ileInfo\x12\x14\n\x0cUNKNOWN_NUM1\x18\x01 \x01(\x03\x12\x0b\n\x03url\x18\x02 \x01(\t\x12\x0b\n\x03md5\x18\x03 \x01(\t\x12\x11\n\tfile_size\x18\x04 \x01(\x03\x62\x06proto3')
+  serialized_pb=_b('\n\x1fGetAllUnitSoftwareUpdates.proto\"\xd5\x01\n\x19GetAllUnitSoftwareUpdates\x12:\n\x0b\x63lient_data\x18\x01 \x01(\x0b\x32%.GetAllUnitSoftwareUpdates.ClientData\x12\x12\n\ndevice_xml\x18\x02 \x01(\t\x1ah\n\nClientData\x12\x0e\n\x06\x63lient\x18\x01 \x01(\t\x12\x10\n\x08language\x18\x02 \x01(\t\x12\x17\n\x0f\x63lient_platform\x18\x03 \x01(\t\x12\x1f\n\x17\x63lient_platform_version\x18\x04 \x01(\t\"\xad\x04\n\x1eGetAllUnitSoftwareUpdatesReply\x12?\n\x0bupdate_info\x18\x01 \x03(\x0b\x32*.GetAllUnitSoftwareUpdatesReply.UpdateInfo\x12\x0e\n\x06source\x18\x02 \x01(\t\x1a\xb9\x03\n\nUpdateInfo\x12\x11\n\tchangelog\x18\x01 \x03(\t\x12\x13\n\x0b\x64\x65vice_name\x18\x02 \x01(\t\x12\x13\n\x0blicense_url\x18\x03 \x01(\t\x12\x13\n\x0bupdate_file\x18\x04 \x01(\t\x12\x14\n\x0cUNKNOWN_NUM5\x18\x05 \x01(\x03\x12G\n\nfiles_list\x18\x06 \x03(\x0b\x32\x33.GetAllUnitSoftwareUpdatesReply.UpdateInfo.FileInfo\x12\x13\n\x0bproduct_sku\x18\x08 \x01(\t\x12\x12\n\nfw_version\x18\t \x01(\t\x12\x16\n\x0eUNKNOWN_FLAG10\x18\n \x01(\x03\x12\x10\n\x08language\x18\x0b \x01(\t\x12\x16\n\x0eUNKNOWN_FLAG12\x18\x0c \x01(\x03\x12\x16\n\x0eUNKNOWN_FLAG13\x18\r \x01(\x03\x12\x11\n\tfile_type\x18\x0e \x01(\t\x12\x15\n\rUNKNOWN_STR15\x18\x0f \x01(\t\x1aM\n\x08\x46ileInfo\x12\x14\n\x0cUNKNOWN_NUM1\x18\x01 \x01(\x03\x12\x0b\n\x03url\x18\x02 \x01(\t\x12\x0b\n\x03md5\x18\x03 \x01(\t\x12\x11\n\tfile_size\x18\x04 \x01(\x03\x62\x06proto3')
 )
 
 
@@ -161,8 +161,8 @@ _GETALLUNITSOFTWAREUPDATESREPLY_UPDATEINFO_FILEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=692,
-  serialized_end=769,
+  serialized_start=732,
+  serialized_end=809,
 )
 
 _GETALLUNITSOFTWAREUPDATESREPLY_UPDATEINFO = _descriptor.Descriptor(
@@ -250,14 +250,21 @@ _GETALLUNITSOFTWAREUPDATESREPLY_UPDATEINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='file_type', full_name='GetAllUnitSoftwareUpdatesReply.UpdateInfo.file_type', index=11,
+      name='UNKNOWN_FLAG13', full_name='GetAllUnitSoftwareUpdatesReply.UpdateInfo.UNKNOWN_FLAG13', index=11,
+      number=13, type=3, cpp_type=2, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='file_type', full_name='GetAllUnitSoftwareUpdatesReply.UpdateInfo.file_type', index=12,
       number=14, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='UNKNOWN_STR15', full_name='GetAllUnitSoftwareUpdatesReply.UpdateInfo.UNKNOWN_STR15', index=12,
+      name='UNKNOWN_STR15', full_name='GetAllUnitSoftwareUpdatesReply.UpdateInfo.UNKNOWN_STR15', index=13,
       number=15, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -275,8 +282,8 @@ _GETALLUNITSOFTWAREUPDATESREPLY_UPDATEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=352,
-  serialized_end=769,
+  serialized_start=368,
+  serialized_end=809,
 )
 
 _GETALLUNITSOFTWAREUPDATESREPLY = _descriptor.Descriptor(
@@ -293,6 +300,13 @@ _GETALLUNITSOFTWAREUPDATESREPLY = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='source', full_name='GetAllUnitSoftwareUpdatesReply.source', index=1,
+      number=2, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -306,7 +320,7 @@ _GETALLUNITSOFTWAREUPDATESREPLY = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=252,
-  serialized_end=769,
+  serialized_end=809,
 )
 
 _GETALLUNITSOFTWAREUPDATES_CLIENTDATA.containing_type = _GETALLUNITSOFTWAREUPDATES

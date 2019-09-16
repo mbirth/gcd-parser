@@ -32,8 +32,10 @@ message GetAllUnitSoftwareUpdatesReply {
         int64 UNKNOWN_FLAG10 = 10;
         string language = 11;
         int64 UNKNOWN_FLAG12 = 12;
+        int64 UNKNOWN_FLAG13 = 13;
         string file_type = 14;
         string UNKNOWN_STR15 = 15;
     }
     repeated UpdateInfo update_info = 1;
+    string source = 2;
 }
