@@ -64,9 +64,18 @@ if opts.devicexml:
     with open(opts.devicexml, "rt") as f:
         device_xml = f.read()
     print("Querying Garmin Express ...", end="", flush=True)
-    result = us.get_unit_updates(device_xml)
+    reply = us.get_unit_updates(device_xml)
     print(" done.")
-    print(result)
+
+    results = []
+    if reply:
+        for i in range(0, len(reply.update_info)):
+            ui = reply.update_info[i]
+            r = updateserver.UpdateInfo()
+            r.fill_from_protobuf(ui)
+            results.append(r)
+
+    print(results)
     sys.exit(0)
 
 # If no GarminDevice.xml read from file, continue here
