@@ -9,6 +9,7 @@ __author__ = "mbirth"
 
 from grmn import updateserver, devices
 from optparse import OptionParser, OptionGroup
+import json
 import os.path
 import sys
 
@@ -33,7 +34,17 @@ Examples:
 
 (opts, device_skus) = optp.parse_args()
 
-if len(device_skus) < 1 and not opts.devicexml:
+if opts.list_devices:
+    if opts.json:
+        print(json.dumps(devices.DEVICES))
+    else:
+        print("HWID - Device/Component")
+        for hwid, name in devices.DEVICES.items():
+            print("{:>04} - {}".format(hwid, name))
+        print()
+        print("SKU format is 006-Bxxxx-00 with xxxx being the HWID.")
+    sys.exit(0)
+elif len(device_skus) < 1 and not opts.devicexml:
     optp.print_help()
     sys.exit(1)
 
