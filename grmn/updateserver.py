@@ -63,7 +63,8 @@ class UpdateInfo:
         self.device_name = self.dom_get_text(dom.getElementsByTagName("Description"))
         version_major = self.dom_get_text(dom.getElementsByTagName("VersionMajor"))
         version_minor = self.dom_get_text(dom.getElementsByTagName("VersionMinor"))
-        self.fw_version = "{}.{:0>2s}".format(version_major, version_minor)
+        if len(version_minor) > 0:
+            self.fw_version = "{}.{:0>2s}".format(version_major, version_minor)
         self.license_url = self.dom_get_text(dom.getElementsByTagName("LicenseLocation"))
         self.changelog = self.dom_get_text(dom.getElementsByTagName("ChangeDescription"))
         self.notes = self.dom_get_text(dom.getElementsByTagName("Notes"))
@@ -107,11 +108,12 @@ class UpdateServer:
         device_xml = self.get_device_xml(sku_numbers)
         reply = self.get_unit_updates(device_xml)
         results = []
-        for i in range(0, len(reply.update_info)):
-            ui = reply.update_info[i]
-            r = UpdateInfo()
-            r.fill_from_protobuf(ui)
-            results.append(r)
+        if reply:
+            for i in range(0, len(reply.update_info)):
+                ui = reply.update_info[i]
+                r = UpdateInfo()
+                r.fill_from_protobuf(ui)
+                results.append(r)
         return results
 
     def query_webupdater(self, sku_numbers):
@@ -125,6 +127,10 @@ class UpdateServer:
 
         results = []
         for resp in dom.getElementsByTagName("Response"):
+            uf = resp.getElementsByTagName("UpdateFile")
+            if len(uf) == 0:
+                # Empty result
+                continue
             r = UpdateInfo()
             r.fill_from_response_dom(resp)
             results.append(r)
