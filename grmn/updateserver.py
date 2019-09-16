@@ -7,7 +7,7 @@ See https://github.com/AlexWhiter/GarminRelatedStuff/tree/master/GetFirmwareUpda
 
 from . import devices
 from .proto import GetAllUnitSoftwareUpdates_pb2
-from xml.dom.minidom import getDOMImplementation
+from xml.dom.minidom import getDOMImplementation, parseString
 import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
@@ -16,7 +16,84 @@ GRMN_CLIENT_VERSION = "6.17.0.0"
 
 class UpdateInfo:
     def __init__(self):
+        self.source = None
+        self.sku = None
+        self.device_name = None
+        self.fw_version = None
+        self.license_url = None
+        self.changelog = None
+        self.notes = None
+        self.language_code = None
+        self.update_type = None
+        self.local_filename = None
+        self.files = []
+        self.build_type = None
+        self.additional_info_url = None
+
+    def fill_from_protobuf(self, protobuf_info):
+        self.source = "Express"
+        self.sku = protobuf_info.product_sku
+        self.device_name = protobuf_info.device_name
+        self.fw_version = protobuf_info.fw_version
+        self.license_url = protobuf_info.license_url
+        self.changelog = "\n".join(protobuf_info.changelog)
+        self.language_code = protobuf_info.language
+        self.local_filename = protobuf_info.update_file
+        self.update_type = protobuf_info.file_type
+        for i in protobuf_info.files_list:
+            self.files.append( {
+                "url": i.url,
+                "md5": i.md5,
+                "size": i.file_size,
+                "size_is_rounded": False,
+            } )
+
+    # From https://docs.python.org/3/library/xml.dom.minidom.html
+    def dom_get_text(self, node_list):
+        rc = []
+        for rnode in node_list:
+            for node in rnode.childNodes:
+                if node.nodeType == node.TEXT_NODE:
+                    rc.append(node.data)
+        return ''.join(rc)
+
+    def fill_from_response_dom(self, dom):
+        self.source = "WebUpdater"
+        self.sku = self.dom_get_text(dom.getElementsByTagName("RequestedPartNumber"))
+        self.device_name = self.dom_get_text(dom.getElementsByTagName("Description"))
+        version_major = self.dom_get_text(dom.getElementsByTagName("VersionMajor"))
+        version_minor = self.dom_get_text(dom.getElementsByTagName("VersionMinor"))
+        self.fw_version = "{}.{:0>2s}".format(version_major, version_minor)
+        self.license_url = self.dom_get_text(dom.getElementsByTagName("LicenseLocation"))
+        self.changelog = self.dom_get_text(dom.getElementsByTagName("ChangeDescription"))
+        self.notes = self.dom_get_text(dom.getElementsByTagName("Notes"))
+        self.language_code = self.dom_get_text(dom.getElementsByTagName("RequestedRegionId"))
+        self.build_type = self.dom_get_text(dom.getElementsByTagName("BuildType"))
+        self.additional_info_url = self.dom_get_text(dom.getElementsByTagName("AdditionalInfo"))
+        files = dom.getElementsByTagName("UpdateFile")
+        for f in files:
+            # For some reason, WebUpdater returns file size in KiB instead of Bytes
+            size_kb = self.dom_get_text(f.getElementsByTagName("Size"))
+            size_bytes = float(size_kb) * 1024
+            self.files.append( {
+                "url": self.dom_get_text(f.getElementsByTagName("Location")),
+                "md5": self.dom_get_text(f.getElementsByTagName("MD5Sum")),
+                "size": size_bytes,
+                "size_is_rounded": True,
+            } )
+
+    def get_json(self):
+        # TODO
         pass
+
+    def __str__(self):
+        url = "-"
+        if len(self.files) > 0:
+            url = self.files[0]["url"]
+        return "[{}] {} {} {}: {}".format(self.source, self.sku, self.device_name, self.fw_version, url)
+
+    def __repr__(self):
+        return "[{}] {} {} {}".format(self.source, self.sku, self.device_name, self.fw_version)
 
 class UpdateServer:
 
@@ -29,13 +106,30 @@ class UpdateServer:
         # Garmin Express Protobuf API
         device_xml = self.get_device_xml(sku_numbers)
         reply = self.get_unit_updates(device_xml)
-        return reply
+        results = []
+        for i in range(0, len(reply.update_info)):
+            ui = reply.update_info[i]
+            r = UpdateInfo()
+            r.fill_from_protobuf(ui)
+            results.append(r)
+        return results
 
     def query_webupdater(self, sku_numbers):
         # WebUpdater
         requests_xml = self.get_requests_xml(sku_numbers)
         reply = self.get_webupdater_softwareupdate(requests_xml)
-        return reply
+
+        # ElementTree might have been easier if it wouldn't be so obnoxious with namespaces
+        # See https://stackoverflow.com/questions/14853243/parsing-xml-with-namespace-in-python-via-elementtree
+        dom = parseString(reply)
+
+        results = []
+        for resp in dom.getElementsByTagName("Response"):
+            r = UpdateInfo()
+            r.fill_from_response_dom(resp)
+            results.append(r)
+
+        return results
 
     def query_updates(self, sku_numbers, query_express=True, query_webupdater=True):
         results = []

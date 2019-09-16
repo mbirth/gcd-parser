@@ -20,6 +20,8 @@ optp.add_option("-W", "--webupdater", action="store_false", dest="express", defa
 optp.add_option("--id", dest="unit_id", help="Specify custom Unit ID")
 optp.add_option("--code", action="append", dest="unlock_codes", metavar="UNLOCK_CODE", default=[], help="Specify map unlock codes")
 optp.add_option("--devicexml", dest="devicexml", metavar="FILE", help="Use specified GarminDevice.xml (also implies -E)")
+optp.add_option("--json", action="store_true", dest="json", default=False, help="Output JSON")
+optp.add_option("--list-devices", action="store_true", dest="list_devices", default=False, help="Show a list of SKUs and product names")
 
 optp.usage = """
   %prog [options] SKU1 [SKU2..SKUn]
