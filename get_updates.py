@@ -100,12 +100,13 @@ results = []
 
 if opts.express:
     print("Querying Garmin Express ...", end="", flush=True)
-    results.append(us.query_express(device_skus))
+    results += us.query_express(device_skus)
     print(" done.")
 
 if opts.webupdater:
     print("Querying Garmin WebUpdater ...", end="", flush=True)
-    results.append(us.query_webupdater(device_skus))
+    results += us.query_webupdater(device_skus)
     print(" done.")
 
-print(results)
+for r in results:
+    print(r)
