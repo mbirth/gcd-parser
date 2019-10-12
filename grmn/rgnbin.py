@@ -9,6 +9,8 @@ from struct import unpack
 # RGN = outside hull
 # BIN = firmware + hwid + checksum
 
+END_PATTERN = b"\xff\xff\x5a\xa5\xff\xff\xff\xff"
+
 class ParseException(Exception):
     pass
 

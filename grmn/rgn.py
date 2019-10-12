@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # Thanks to Herbert Oppmann (herby) for all your work!
 
-from .ansi import RESET, RED
+from .ansi import RESET, RED, YELLOW
 from .chksum import ChkSum
 from .rgnbin import RgnBin
 from struct import unpack
@@ -38,8 +38,6 @@ class Rgn:
     def load(self):
         if self.filename is None:
             return False
-        last_tlv6 = None
-        last_tlv7 = None
         with open(self.filename, "rb") as f:
             sig = f.read(4)
             if sig != RGN_SIG:
@@ -59,6 +57,29 @@ class Rgn:
                 self.add_rec(rec)
             f.close()
 
+    def load_from_bytes(self, payload: bytes):
+        pos = 0
+        sig = payload[pos:pos+4]
+        if sig != RGN_SIG:
+            raise ParseException("Signature mismatch ({}, should be {})!".format(repr(sig), repr(RGN_SIG)))
+        pos += 4
+        self.version = unpack("<H", payload[pos:pos+2])[0]
+        pos += 2
+        while True:
+            cur_offset = pos
+            if pos >= len(payload):
+                #print("End of file reached.")
+                break
+            header = payload[pos:pos+5]
+            pos += 5
+            (length, type_id) = unpack("<Lc", header)
+            #print("Found record type: {} with {} Bytes length.".format(type_id, length))
+            rec = RgnRecord.factory(type_id, length, offset=cur_offset)
+            inner_payload = payload[pos:pos+length]
+            pos += length
+            rec.set_payload(inner_payload)
+            self.add_rec(rec)
+
     def add_rec(self, new_rec):
         self.struct.append(new_rec)
 
@@ -66,10 +87,7 @@ class Rgn:
         """
         Prints the structure of the parsed RGN file
         """
-        print("RGN File Version: {}".format(self.version))
-        print("{} records.".format(len(self.struct)))
-        for i, rec in enumerate(self.struct):
-            print("#{:03d}: {}".format(i, rec))
+        print(str(self))
 
     def print_struct_full(self):
         """
@@ -93,6 +111,13 @@ class Rgn:
 
     def save(self, filename):
         pass
+
+    def __str__(self):
+        txt = "RGN File Version: {}".format(self.version)
+        txt += "\n{} records.".format(len(self.struct))
+        for i, rec in enumerate(self.struct):
+            txt += "\n#{:03d}: {}".format(i, rec)
+        return txt
 
 class RgnRecord():
     def __init__(self, type_id, expected_length, payload=None, offset=None):
@@ -215,6 +240,11 @@ class RgnRecordR(RgnRecord):
         self.delay_ms = None
         self.size = None
 
+    def id_payload(self):
+        if self.payload[10:10+len(RGN_SIG)] == RGN_SIG:
+            return "RGN"
+        return "BIN"
+
     def parse(self):
         if self.is_parsed:
             # already parsed
@@ -230,4 +260,13 @@ class RgnRecordR(RgnRecord):
         txt += "\n  - Region ID: {:04x} ({})".format(self.region_id, rgn_type)
         txt += "\n  - Flash delay: {} ms".format(self.delay_ms)
         txt += "\n  - Binary size: {} Bytes".format(self.size)
+        if len(self.payload) - 10 == self.size:
+            txt += " (OK)"
+        else:
+            txt += " (" + RED + "MISMATCH!" + RESET + ")"
+        if self.id_payload() == "RGN":
+            txt += "\n  " + YELLOW + "PAYLOAD IS ANOTHER RGN STRUCTURE:" + RESET
+            rgn = Rgn()
+            rgn.load_from_bytes(self.payload[10:])
+            txt += "\n      " + "\n      ".join(str(rgn).split("\n"))
         return txt
