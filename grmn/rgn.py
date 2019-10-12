@@ -264,9 +264,14 @@ class RgnRecordR(RgnRecord):
             txt += " (OK)"
         else:
             txt += " (" + RED + "MISMATCH!" + RESET + ")"
-        if self.id_payload() == "RGN":
+        payload_type = self.id_payload()
+        if payload_type == "RGN":
             txt += "\n  " + YELLOW + "PAYLOAD IS ANOTHER RGN STRUCTURE:" + RESET
             rgn = Rgn()
             rgn.load_from_bytes(self.payload[10:])
             txt += "\n      " + "\n      ".join(str(rgn).split("\n"))
+        elif payload_type == "BIN":
+            binfw = RgnBin()
+            binfw.load_from_bytes(self.payload[10:])
+            txt += "\n      " + "\n      ".join(str(binfw).split("\n"))
         return txt

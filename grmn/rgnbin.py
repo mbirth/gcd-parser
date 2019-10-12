@@ -25,4 +25,11 @@ class RgnBin:
         if self.filename is None:
             return False
         with open(self.filename, "rb") as f:
+            rawdata = f.read()
             f.close()
+        self.load_from_bytes(rawdata)
+
+    def load_from_bytes(self, payload: bytes):
+        print(repr(payload[0:10]))
+        jmp = unpack("<L", payload[0:4])[0]
+        print("{:08x}".format(jmp))
