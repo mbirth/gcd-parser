@@ -14,5 +14,5 @@ print("Opening {}".format(FILE))
 
 rgn = Rgn(FILE)
 
-#rgn.print_struct()
+rgn.print_struct()
 #rgn.validate(True)

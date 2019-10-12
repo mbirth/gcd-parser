@@ -1,16 +1,29 @@
 # -*- coding: utf-8 -*-
 # Thanks to Herbert Oppmann (herby) for all your work!
 
+from .ansi import RESET, RED
 from .chksum import ChkSum
 from .rgnbin import RgnBin
 from struct import unpack
 import configparser
 
 RGN_SIG = b"KpGr"
+DEFAULT_BUILDER = "SQA"
 
 # RGN structure might be: RGN > BIN or RGN > RGN > BIN
 # RGN = outside hull
 # BIN = firmware + hwid + checksum
+
+REGION_TYPES = {
+    0x000a: "dskimg.bin",
+    0x000c: "boot.bin",
+    0x000e: "fw_all.bin",
+    0x0010: "logo.bin",
+    0x004e: "ZIP file",
+    0x0055: "fw_all2.bin",
+    0x00f5: "GCD firmware update file",
+    0x00ff: "pk_text.zip",
+}
 
 class ParseException(Exception):
     pass
@@ -32,15 +45,14 @@ class Rgn:
             if sig != RGN_SIG:
                 raise ParseException("Signature mismatch ({}, should be {})!".format(repr(sig), repr(RGN_SIG)))
             self.version = unpack("<H", f.read(2))[0]
-            print("Version: {}".format(self.version))
             while True:
                 cur_offset = f.tell()
                 header = f.read(5)
                 if len(header) == 0:
-                    print("End of file reached.")
+                    #print("End of file reached.")
                     break
                 (length, type_id) = unpack("<Lc", header)
-                print("Found record type: {} with {} Bytes length.".format(type_id, length))
+                #print("Found record type: {} with {} Bytes length.".format(type_id, length))
                 rec = RgnRecord.factory(type_id, length, offset=cur_offset)
                 payload = f.read(length)
                 rec.set_payload(payload)
@@ -52,20 +64,24 @@ class Rgn:
 
     def print_struct(self):
         """
-        Prints the structure of the parsed GCD file
+        Prints the structure of the parsed RGN file
         """
-        pass
+        print("RGN File Version: {}".format(self.version))
+        print("{} records.".format(len(self.struct)))
+        for i, rec in enumerate(self.struct):
+            print("#{:03d}: {}".format(i, rec))
 
     def print_struct_full(self):
         """
-        Prints the structure of the parsed GCD file
+        Prints the structure of the parsed RGN file
         """
-        pass
+        self.print_struct()
 
     def validate(self, print_stats: bool=False):
         """
-        Checks and verifies all checksums in the GCD.
+        Checks and verifies all checksums in the RGN.
         """
+        return True
         # RGN has no checksum, but embedded BIN has
 
     def dump_to_files(self, output_basename: str):
@@ -104,14 +120,49 @@ class RgnRecord():
         new_rec.offset = offset
         return new_rec
 
+    def __str__(self):
+        rec_type = "Unknown"
+        if self.type_id == b"D":
+            rec_type = "Data Version"
+        elif self.type_id == b"A":
+            rec_type = "Application Version"
+        elif self.type_id == b"R":
+            rec_type = "Region"
+
+        if self.length != 1:
+            plural = "s"
+        offset = ""
+        if self.offset:
+            offset = " at 0x{:x}".format(self.offset)
+        lenstr = ""
+        if self.length:
+            lenstr = ", {:d} Byte{}".format(self.length, plural)
+        return "RGN {} Record{}{}".format(rec_type, offset, lenstr)
+
 class RgnRecordD(RgnRecord):
     """
     Data record (2 Bytes)
     - ushort - Version
     """
 
+    def __init__(self, type_id, expected_length, payload=None, offset=None):
+        super().__init__(type_id, expected_length, payload, offset)
+        self.version = None
+
     def parse(self):
+        if self.is_parsed:
+            # already parsed
+            return
+        self.version = unpack("<H", self.payload)[0]
         self.is_parsed = True
+
+    def __str__(self):
+        txt = super().__str__()
+        if not self.is_parsed:
+            self.parse()
+        txt += "\n  - Data Version: {}".format(self.version)
+        return txt
+
 
 class RgnRecordA(RgnRecord):
     """
@@ -122,8 +173,32 @@ class RgnRecordA(RgnRecord):
     - string - BuildTime
     """
 
+    def __init__(self, type_id, expected_length, payload=None, offset=None):
+        super().__init__(type_id, expected_length, payload, offset)
+        self.version = None
+        self.builder = None
+        self.build_date = None
+        self.build_time = None
+
     def parse(self):
+        if self.is_parsed:
+            # already parsed
+            return
+        self.version = unpack("<H", self.payload[0:2])[0]
+        splits = self.payload[2:].split(b"\0", 2)
+        self.builder = splits[0].decode("utf-8")
+        self.build_date = splits[1].decode("utf-8")
+        self.build_time = splits[2].decode("utf-8")
         self.is_parsed = True
+
+    def __str__(self):
+        txt = super().__str__()
+        if not self.is_parsed:
+            self.parse()
+        txt += "\n  - Application Version: {}".format(self.version)
+        txt += "\n  - Builder: {}".format(self.builder)
+        txt += "\n  - Build time: {} {}".format(self.build_date, self.build_time)
+        return txt
 
 class RgnRecordR(RgnRecord):
     """
@@ -134,5 +209,25 @@ class RgnRecordR(RgnRecord):
     - byte[Region size] - Contents
     """
 
+    def __init__(self, type_id, expected_length, payload=None, offset=None):
+        super().__init__(type_id, expected_length, payload, offset)
+        self.region_id = None
+        self.delay_ms = None
+        self.size = None
+
     def parse(self):
+        if self.is_parsed:
+            # already parsed
+            return
+        (self.region_id, self.delay_ms, self.size) = unpack("<HLL", self.payload[0:10])
         self.is_parsed = True
+
+    def __str__(self):
+        txt = super().__str__()
+        if not self.is_parsed:
+            self.parse()
+        rgn_type = REGION_TYPES.get(self.region_id, RED + "Unknown" + RESET)
+        txt += "\n  - Region ID: {:04x} ({})".format(self.region_id, rgn_type)
+        txt += "\n  - Flash delay: {} ms".format(self.delay_ms)
+        txt += "\n  - Binary size: {} Bytes".format(self.size)
+        return txt
