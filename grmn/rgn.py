@@ -19,9 +19,14 @@ REGION_TYPES = {
     0x000c: "boot.bin",
     0x000e: "fw_all.bin",
     0x0010: "logo.bin",
+    0x0029: "NonVol (old)",
     0x004e: "ZIP file",
     0x0055: "fw_all2.bin",
+    0x009a: "NonVol (new)",
     0x00f5: "GCD firmware update file",
+    0x00f9: "Display firmware",
+    0x00fa: "ANT firmware",
+    0x00fb: "WiFi firmware",
     0x00ff: "pk_text.zip",
 }
 
@@ -52,6 +57,7 @@ class Rgn:
                 (length, type_id) = unpack("<Lc", header)
                 #print("Found record type: {} with {} Bytes length.".format(type_id, length))
                 rec = RgnRecord.factory(type_id, length, offset=cur_offset)
+                rec.parent = self
                 payload = f.read(length)
                 rec.set_payload(payload)
                 self.add_rec(rec)
@@ -75,6 +81,7 @@ class Rgn:
             (length, type_id) = unpack("<Lc", header)
             #print("Found record type: {} with {} Bytes length.".format(type_id, length))
             rec = RgnRecord.factory(type_id, length, offset=cur_offset)
+            rec.parent = self
             inner_payload = payload[pos:pos+length]
             pos += length
             rec.set_payload(inner_payload)
@@ -121,6 +128,7 @@ class Rgn:
 
 class RgnRecord():
     def __init__(self, type_id, expected_length, payload=None, offset=None):
+        self.parent = None
         self.type_id = type_id
         self.length = expected_length
         self.is_binary = False
@@ -267,10 +275,15 @@ class RgnRecordR(RgnRecord):
         payload_type = self.id_payload()
         if payload_type == "RGN":
             txt += "\n  " + YELLOW + "PAYLOAD IS ANOTHER RGN STRUCTURE:" + RESET
+            #with open("innerrgn.rgn", "wb") as f:
+            #    f.write(self.payload[10:])
+            #    f.close()
             rgn = Rgn()
             rgn.load_from_bytes(self.payload[10:])
             txt += "\n      " + "\n      ".join(str(rgn).split("\n"))
         elif payload_type == "BIN":
+            #with open("{}_{}.bin".format(self.parent.filename, self.offset), "wb") as f:
+            #    f.write(self.payload[10:])
             binfw = RgnBin()
             binfw.load_from_bytes(self.payload[10:])
             txt += "\n      " + "\n      ".join(str(binfw).split("\n"))

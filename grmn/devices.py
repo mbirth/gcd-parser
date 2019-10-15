@@ -180,6 +180,7 @@ DEVICES = {
      954: "Chartplotters Minimum Software for g2 charts (954)",
      955: "Chartplotters Minimum Software for g2 charts (955)",
      956: "Honda Navi Gen3",
+     957: "eTrex Legend H/Vista H",
      960: "Dakota",
      969: "Firmware Update for FMI Cables with Traffic",
      970: "Mount Software",
