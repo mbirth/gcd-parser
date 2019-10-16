@@ -46,7 +46,7 @@ class RgnBin:
         if jmp == 0xe59ff008:
             # Variant 1a or 1b (end > hwid > swver > entry OR hwid > swver > end > entry)
             (x1, x2, x3, entry_addr) = unpack("<LLLL", self.payload[4:20])
-            print("{:04x} / {:04x} / {:04x} / {:04x}".format(x1, x2, x3, entry_addr))
+            #print("{:04x} / {:04x} / {:04x} / {:04x}".format(x1, x2, x3, entry_addr))
             # HWID and SWVER are near each other
             if abs(x2 - x1) == 2:
                 # Assume 1b: x1 = hw_id, x2 = swver
@@ -59,22 +59,21 @@ class RgnBin:
                 hwid_addr = x2 + delta
                 swver_addr = x3 + delta
         if jmp == 0xe59ff00c:
-            print(RED + "Checking for 2" + RESET)
             # Variant 2 (end > hwid > swver > lend > entry)
+            # NOTE: This method doesn't seem to work with eTrex H firmware!
             (end_addr, hwid_addr, swver_addr, lend_addr, entry_addr) = unpack("<LLLlL", self.payload[4:24])
-            print("hwid_addr: {} / swver_addr: {}".format(hwid_addr, swver_addr))
-            print("end_addr: {} / lend_addr: {} / entry_addr: {}".format(end_addr, lend_addr, entry_addr))
+            #print("hwid_addr: {} / swver_addr: {}".format(hwid_addr, swver_addr))
+            #print("end_addr: {} / lend_addr: {} / entry_addr: {}".format(end_addr, lend_addr, entry_addr))
             if lend_addr < 0:
                 load_addr = -lend_addr
                 print("load_addr: {}".format(load_addr))
                 delta = 24 - load_addr
             else:
                 delta = 24 - entry_addr
-            print("delta: {}".format(delta))
+            #print("delta: {}".format(delta))
             hwid_addr += delta
             swver_addr += delta
-            print("hwaddr: {} / swveraddr: {}".format(hwid_addr, swver_addr))
-            # expected hw_addr: 0x4b5e = 19294 / swver: 0x4b60 = 19296
+            #print("hwaddr: {} / swveraddr: {}".format(hwid_addr, swver_addr))
         if end_loc and jmp == 0xea000002:
             # Variant 3 (end > hwid > swver)
             (end_addr, hwid_addr, swver_addr) = unpack("<LLL", self.payload[4:16])
@@ -84,10 +83,14 @@ class RgnBin:
         if jmp == 0xea000003:
             print(RED + "Checking for 4" + RESET)
             # Variant 4 (end > hwid > swver > ???)
-
+            (end_addr, hwid_addr, swver_addr) = unpack("<LLL", self.payload[4:16])
+            delta = end_loc + 2 - end_addr
+            hwid_addr += delta
+            swver_addr += delta
         if jmp == 0xea000004:
-            print(RED + "checking for 5" + RESET)
-            # Variant 5
+            print(RED + "Checking for 5" + RESET)
+            # Variant 5 - not mentioned in pdf doc
+            print(repr(self.payload[4:20]))
 
         if hwid_addr:
             if hwid_addr < 0 or hwid_addr > len(self.payload)-2:
