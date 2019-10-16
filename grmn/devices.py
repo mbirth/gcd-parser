@@ -922,7 +922,7 @@ DEVICES = {
     3316: "Approach S40, Touchscreen",
     3317: "ForeTrex 601 Japan",
     3318: "Overlander",
-    3321: "Forerunner 256M APAC",
+    3321: "Forerunner 245M APAC",
     3324: "D2 Delta PX APAC",
     3330: "GPS Software 3330",
     3349: "Edge 530 ASIA",
