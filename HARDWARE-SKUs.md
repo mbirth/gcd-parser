@@ -19,7 +19,7 @@ Garmin wearables SKU numbers
 | fenix 5S Plus                 | 006-B2900-00 | 16,000 MB |  X  | 006-B3013-00 | 006-B3153-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
 | fenix 5 Plus                  | 006-B3110-00 | 16,000 MB |  X  | 006-B3014-00 | 006-B3153-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
 | fenix 5X Plus                 | 006-B3111-00 | 16,000 MB | POx | 006-B3015-00 | 006-B3153-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
-| Forerunner 945                | 006-B3113-00 | 16,000 MB |  G3 | 006-B3114-00 | 006-B3303-00 |              |              |              |              |
+| Forerunner 945                | 006-B3113-00 | 16,000 MB |  G3 | 006-B3114-00 | 006-B3303-00 | 006-B3107-00 |              |              |              |
 | D2 Delta S                    | 006-B3196-00 | 16,000 MB |  X  | 006-B3014-00 | 006-B3260-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
 | D2 Delta                      | 006-B3197-00 | 16,000 MB |  X  | 006-B3014-00 | 006-B3260-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
 | D2 Delta PX                   | 006-B3198-00 | 16,000 MB | POx |              | 006-B3260-00 | 006-B2957-00 | 006-B2196-02 | 006-B2822-01 |              |
@@ -43,4 +43,4 @@ Notes
 * "G3" in the HRM column means the new Gen3 HR/POx sensors (introduced with the MARQ series)
 * ANT/BLE/BT firmwares of the D2 Delta and fenix 5 Plus series are identical par the SKU number
 * GPS firmwares 1621 and 2957 are for the same chip, but 2957 has Galileo support, 1621 does not
-* GPS firmware 3107 is the new Sony chipset (introduced with the MARQ series)
+* GPS firmwares 3107 and 3506 are the new Sony chipset (introduced with the MARQ series)
