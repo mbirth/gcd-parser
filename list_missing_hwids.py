@@ -11,24 +11,25 @@ for i in range(0, 9999):
         continue
     missing.append(i)
 
-print("./get_updates.py", end="")
-
 missing_count = 0
-cur_line = 0
-for i in range(0, 9999):
-    if i >= last_id:
-        break
-    if i % 10 == 0 and cur_line > 5:
-        print()
-        print("./get_updates.py", end="")
-        cur_line = 0
+cur_line = []
+queue = []
+for i in range(0, last_id+1):
+    if i % 10 == 0:
+        if len(cur_line) + len(queue) > 15:
+            print("./get_updates.py {}".format(" ".join(cur_line)))
+            cur_line = queue
+        else:
+            cur_line += queue
+        queue = []
     if not i in missing:
         continue
-    if i <= last_id:
-        print(" {:04}".format(i), end="")
-        missing_count += 1
-        cur_line += 1
+    queue.append("{:04}".format(i))
+    missing_count += 1
 
+cur_line += queue
+if len(cur_line) > 0:
+    print("./get_updates.py {}".format(" ".join(cur_line)))
 
 print()
 print("{} unknown ids.".format(missing_count))
