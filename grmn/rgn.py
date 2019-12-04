@@ -25,7 +25,7 @@ REGION_TYPES = {
     0x009a: "NonVol (new)",
     0x00f5: "GCD firmware update file",
     0x00f9: "Display firmware",
-    0x00fa: "ANT firmware",
+    0x00fa: "ANT/BLE/BT firmware",
     0x00fb: "WiFi firmware",
     0x00ff: "pk_text.zip",
 }
