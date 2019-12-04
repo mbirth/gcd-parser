@@ -91,6 +91,14 @@ class RgnBin:
             print(RED + "Checking for 5" + RESET)
             # Variant 5 - not mentioned in pdf doc
             print(repr(self.payload[4:20]))
+        if self.payload[252:256] == b"\xff\xff\xff\xff":
+            print("HWID at 256 possible")
+            hwid_addr = 256
+            swver_addr = 258
+        if self.payload[508:512] == b"\xff\xff\xff\xff":
+            print("HWID at 512 possible")
+            hwid_addr = 512
+            swver_addr = 514
 
         if hwid_addr:
             if hwid_addr < 0 or hwid_addr > len(self.payload)-2:
