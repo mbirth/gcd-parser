@@ -91,7 +91,14 @@ class UpdateInfo:
         url = "-"
         if len(self.files) > 0:
             url = self.files[0]["url"]
-        return "[{}] {} {} {}: {}".format(self.source, self.sku, self.device_name, self.fw_version, url)
+        txt = "[{}] {} {} {}: {}".format(self.source, self.sku, self.device_name, self.fw_version, url)
+        if self.changelog:
+            txt += "\nChangelog:\n" + self.changelog
+        if self.notes:
+            txt += "\n\nNotes:\n" + self.notes
+        if self.additional_info_url:
+            txt += self.additional_info_url
+        return txt
 
     def __repr__(self):
         return "[{}] {} {} {}".format(self.source, self.sku, self.device_name, self.fw_version)
