@@ -110,3 +110,10 @@ if opts.webupdater:
 
 for r in results:
     print(r)
+    if opts.changelog:
+        if r.changelog:
+            print("\nChangelog:\n" + r.changelog)
+        if r.notes:
+            print("\n\nNotes:\n" + r.notes)
+        if r.additional_info_url:
+            print("\nAdditional Information: " + r.additional_info_url)

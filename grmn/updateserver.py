@@ -101,12 +101,6 @@ class UpdateInfo:
         if len(self.files) > 0:
             url = self.files[0]["url"]
         txt = "[{}] {} {} {}: {}".format(self.source, self.sku, self.device_name, self.fw_version, url)
-        if self.changelog:
-            txt += "\nChangelog:\n" + self.changelog
-        if self.notes:
-            txt += "\n\nNotes:\n" + self.notes
-        if self.additional_info_url:
-            txt += "\nAdditional Information: " + self.additional_info_url
         return txt
 
     def __repr__(self):
