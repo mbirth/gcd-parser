@@ -58,6 +58,14 @@ class UpdateInfo:
                     rc.append(node.data)
         return ''.join(rc)
 
+    def urlencodedhtml_to_text(self, urltext):
+        html = unquote(urltext).replace("+", " ")
+        txt = html.replace("<br/>", "\n")
+        txt = txt.replace("<strong>", "").replace("</strong>", "")
+        #txt = txt.replace("<strong>", u"\u001b[1;37m").replace("</strong>", u"\u001b[0m")
+        txt = txt.replace("<li>", "\n * ").replace("</li>", "")
+        return txt
+
     def fill_from_response_dom(self, dom):
         self.source = "WebUpdater"
         self.sku = self.dom_get_text(dom.getElementsByTagName("RequestedPartNumber"))
@@ -67,8 +75,8 @@ class UpdateInfo:
         if len(version_minor) > 0:
             self.fw_version = "{}.{:0>2s}".format(version_major, version_minor)
         self.license_url = self.dom_get_text(dom.getElementsByTagName("LicenseLocation"))
-        self.changelog = unquote(self.dom_get_text(dom.getElementsByTagName("ChangeDescription"))).replace("+", " ")
-        self.notes = unquote(self.dom_get_text(dom.getElementsByTagName("Notes"))).replace("+", " ")
+        self.changelog = self.urlencodedhtml_to_text(self.dom_get_text(dom.getElementsByTagName("ChangeDescription")))
+        self.notes = self.urlencodedhtml_to_text(self.dom_get_text(dom.getElementsByTagName("Notes")))
         self.language_code = self.dom_get_text(dom.getElementsByTagName("RequestedRegionId"))
         self.build_type = self.dom_get_text(dom.getElementsByTagName("BuildType"))
         self.additional_info_url = self.dom_get_text(dom.getElementsByTagName("AdditionalInfo"))
