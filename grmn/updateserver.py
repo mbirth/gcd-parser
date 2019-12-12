@@ -8,6 +8,7 @@ See https://github.com/AlexWhiter/GarminRelatedStuff/tree/master/GetFirmwareUpda
 from . import devices
 from .proto import GetAllUnitSoftwareUpdates_pb2
 from xml.dom.minidom import getDOMImplementation, parseString
+from urllib.parse import unquote
 import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
@@ -66,8 +67,8 @@ class UpdateInfo:
         if len(version_minor) > 0:
             self.fw_version = "{}.{:0>2s}".format(version_major, version_minor)
         self.license_url = self.dom_get_text(dom.getElementsByTagName("LicenseLocation"))
-        self.changelog = self.dom_get_text(dom.getElementsByTagName("ChangeDescription"))
-        self.notes = self.dom_get_text(dom.getElementsByTagName("Notes"))
+        self.changelog = unquote(self.dom_get_text(dom.getElementsByTagName("ChangeDescription"))).replace("+", " ")
+        self.notes = unquote(self.dom_get_text(dom.getElementsByTagName("Notes"))).replace("+", " ")
         self.language_code = self.dom_get_text(dom.getElementsByTagName("RequestedRegionId"))
         self.build_type = self.dom_get_text(dom.getElementsByTagName("BuildType"))
         self.additional_info_url = self.dom_get_text(dom.getElementsByTagName("AdditionalInfo"))
@@ -97,7 +98,7 @@ class UpdateInfo:
         if self.notes:
             txt += "\n\nNotes:\n" + self.notes
         if self.additional_info_url:
-            txt += self.additional_info_url
+            txt += "\nAdditional Information: " + self.additional_info_url
         return txt
 
     def __repr__(self):
