@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+# Supply any parameter to the script to also show possible future hwids.
+
 from grmn import devices
+import sys
 
 last_id = 0
 missing = []
@@ -34,18 +37,21 @@ if len(cur_line) > 0:
 print()
 print("{} unknown ids.".format(missing_count))
 print("Last known id is: {:04}".format(last_id))
-print("-" * 100)
-print("Here are some possible future ids:")
 
-print("./get_updates.py", end="")
 
-cur_line = 0
-for i in range(last_id + 1, last_id + 100):
-    if i % 10 == 0 and cur_line > 5:
-        print()
-        print("./get_updates.py", end="")
-        cur_line = 0
-    print(" {:04}".format(i), end="")
-    cur_line += 1
+if len(sys.argv) > 1:
+    print("-" * 100)
+    print("Here are some possible future ids:")
 
-print()
+    print("./get_updates.py", end="")
+
+    cur_line = 0
+    for i in range(last_id + 1, last_id + 200):
+        if i % 10 == 0 and cur_line > 5:
+            print()
+            print("./get_updates.py", end="")
+            cur_line = 0
+        print(" {:04}".format(i), end="")
+        cur_line += 1
+
+    print()
