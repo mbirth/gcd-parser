@@ -937,6 +937,7 @@ DEVICES = {
     3330: "GPS Software 3330",
     3349: "Edge 530 ASIA",
     3350: "Edge 830 ASIA",
+    3354: "DriveSmart x5 ASIA",
     3356: "vivoactive 4 Small, Sensor Hub",
     3357: "vivoactive 4 Large, Sensor Hub",
     3358: "venu, Sensor Hub",
@@ -1031,6 +1032,10 @@ DEVICES = {
     3649: "GPS Chipset MTK (3649)",
     3669: "vivomove 3 Classic ASIA, Sensor Hub",
     3670: "vivomove 3/3S ASIA, Sensor Hub",
+    3687: "eTrex 32x CHN",
+    3689: "eTrex 22x/32x JPN",
+    3690: "eTrex 22x/32x SEA",
+    3691: "eTrex 22x/32x MN",
     3741: "GPS Software (3741)",
     3742: "GPS Software (3742)",
 }
