@@ -13,7 +13,7 @@ import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
 WEBUPDATER_SOFTWAREUPDATE_URL = "https://www.garmin.com/support/WUSoftwareUpdate.jsp"
-GRMN_CLIENT_VERSION = "6.17.0.0"
+GRMN_CLIENT_VERSION = "6.19.4.0"
 
 class UpdateInfo:
     def __init__(self):
