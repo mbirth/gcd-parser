@@ -40,9 +40,9 @@ cur_line += queue
 if len(cur_line) > 0:
     print("./get_updates.py {}".format(" ".join(cur_line)))
 
+known_count = len(devices.DEVICES)
 print()
-print("{} unknown ids.".format(missing_count))
-print("Last known id is: {:04}".format(last_id))
+print("{} known, {} unknown ids. Last known id is: {:04d}".format(known_count, missing_count, last_id))
 print("Largest gap is: {}".format(largest_gap))
 
 
