@@ -999,6 +999,7 @@ DEVICES = {
     3477: "vivoactive 3 Daimler APAC",
     3480: "Dash Cam 56",
     3481: "Dash Cam 66W",
+    3484: "zumo XT",
     3488: "Pro 550 Plus, EL & FR",
     3489: "Pro 550 Plus, EH",
     3494: "MARQ ASIA Series, Sensor Hub",
@@ -1034,6 +1035,7 @@ DEVICES = {
     3624: "MARQ Adventurer",
     3648: "MARQ Adventure APAC",
     3649: "GPS Chipset MTK (3649)",
+    3663: "GPSMAP 63csx CHN_OPM",
     3669: "vivomove 3 Classic ASIA, Sensor Hub",
     3670: "vivomove 3/3S ASIA, Sensor Hub",
     3687: "eTrex 32x CHN",
@@ -1042,4 +1044,5 @@ DEVICES = {
     3691: "eTrex 22x/32x MN",
     3741: "GPS Software (3741)",
     3742: "GPS Software (3742)",
+    3750: "GPS Software (3750)",
 }
