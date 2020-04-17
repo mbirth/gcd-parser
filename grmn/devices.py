@@ -1093,6 +1093,8 @@ DEVICES = {
     3578: "fenix 5/5 Plus/Chronos, ???",
     3620: "Fusion Boat Builder Configuration Tool",
     3624: "MARQ Adventurer",
+    3639: "Swim 2 ASIA",
+    3642: "Swim 2 ASIA, Sensor Hub",
     3648: "MARQ Adventure APAC",
     3649: "GPS Chipset MTK (3649)",
     3663: "GPSMAP 63csx CHN_OPM",
