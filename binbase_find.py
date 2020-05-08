@@ -2,7 +2,6 @@
 
 # https://github.com/mncoppola/ws30/blob/master/basefind.py
 
-import gc
 import os
 import re
 import signal
@@ -19,26 +18,6 @@ regexp = bytes("[{}]{{{:d},}}".format(chars, min_length), "us-ascii")
 pattern = re.compile(regexp)
 regexpc = bytes("[{}]{{1,}}".format(chars), "us-ascii")
 patternc = re.compile(regexpc)
-
-def high_scores(signal, frame):
-    print("\nTop 20 base address candidates:")
-    for score in sorted(scores, key=itemgetter(1), reverse=True)[:20]:
-        print("0x{:x}\t{:d}".format(*score))
-    sys.exit(0)
-
-def get_pointers(filename):
-    table = {}
-    with open(filename, "rb") as f:
-        while True:
-            try:
-                value = struct.unpack("<L", f.read(4))[0]
-                try:
-                    table[value] += 1
-                except KeyError:
-                    table[value] = 1
-            except:
-                break
-    return table
 
 def get_strings(filename, size):
     table = set()
@@ -65,6 +44,26 @@ def get_strings(filename, size):
             offset += 1
     return table
 
+def get_pointers(filename):
+    table = {}
+    with open(filename, "rb") as f:
+        while True:
+            try:
+                value = struct.unpack("<L", f.read(4))[0]
+                try:
+                    table[value] += 1
+                except KeyError:
+                    table[value] = 1
+            except:
+                break
+    return table
+
+def high_scores(signal, frame):
+    print("\nTop 20 base address candidates:")
+    for score in sorted(scores, key=itemgetter(1), reverse=True)[:20]:
+        print("0x{:x}\t{:d}".format(*score))
+    sys.exit(0)
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
@@ -87,7 +86,6 @@ if __name__ == "__main__":
     ptr_table = get_pointers(args.infile)
     print("Total pointers found: {:d}".format(len(ptr_table)))
 
-    gc.disable()
     signal.signal(signal.SIGINT, high_scores)
 
     for base in range(args.min_addr, args.max_addr, args.page_size):
