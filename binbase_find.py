@@ -71,7 +71,7 @@ if __name__ == "__main__":
     def auto_int(x):
         return int(x, 0)
     parser.add_argument("--min_addr",  type=auto_int, help="start searching at this address", default=0)
-    parser.add_argument("--max_addr",  type=auto_int, help="stop searching at this address", default=0xf0000000)
+    parser.add_argument("--max_addr",  type=auto_int, help="stop searching at this address", default=0xfe000000)
     parser.add_argument("--page_size", type=auto_int, help="search every this many byte", default=0x1000)
     parser.add_argument("infile", help="file to scan")
     args = parser.parse_args()
@@ -93,6 +93,7 @@ if __name__ == "__main__":
     for base in range(args.min_addr, args.max_addr, args.page_size):
         if base % ( args.page_size * 1000 ) == 0:
             print("Trying base address 0x{:x}".format(base))
+            print("\u001b[F\u001b[K", end="")
         score = 0
         ptrs = list(ptr_table.keys())
         for ptr in ptrs:
