@@ -15,7 +15,7 @@ class ChkSum:
         with open(filename, "rb") as f:
             while True:
                 block = f.read(blocksize)
-                 if len(block) != 0:
+                if len(block) != 0:
                     self.add(block)
                 if print_progress:
                     print(".", end="", flush=True)

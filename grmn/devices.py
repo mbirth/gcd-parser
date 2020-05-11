@@ -1076,6 +1076,7 @@ DEVICES = {
     3517: "Approach Z82, Sensor Hub",
     3519: "Approach G80 ASIA",
     3526: "Approach Z82",
+    3527: "Approach Z82, Aux",
     3535: "Captain Marvel APAC",
     3536: "First Avenger APAC",
     3537: "Rey APAC",
