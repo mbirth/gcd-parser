@@ -5,7 +5,7 @@ This is a parser and some tools for working with Garmin firmware updates (GCD/RG
 
 It's in Python, so feel free to add cool new features and submit pull requests.
 
-Thanks to TurboCCC, kunix and Alex W. for your work.
+Thanks to TurboCCC, kunix and AlexWhiter for your work.
 
 Most info from:
 
