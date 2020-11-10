@@ -86,7 +86,7 @@ for i, sku in enumerate(device_skus):
 if device_skus[0][0:5] == "006-B":
     primary_hwid = int(device_skus[0][5:9])
     device_name = devices.DEVICES.get(primary_hwid, "Unknown device")
-    print("Device (guessed): {}".format(device_name))
+    print("Device {:04d} (guessed): {}".format(primary_hwid, device_name))
 
 if opts.unit_id:
     print("Custom Unit ID: {}".format(opts.unit_id))
