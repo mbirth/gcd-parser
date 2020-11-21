@@ -983,7 +983,7 @@ DEVICES = {
     3295: "fenix 6, Sensor Hub",
     3296: "fenix 6X, Sensor Hub",
     3299: "Approach S40/fenix 5/5 Plus/Instinct, ???",
-    3300: "Approach S40/fenix 5/5 Plus/Instinct, ???",
+    3300: "HRM-Pro",
     3303: "Forerunner 945, ANT_BLE_BT",
     3307: "Cannondale Wheel Sensor",
     3308: "vivomove 3 Classic/Premium",
