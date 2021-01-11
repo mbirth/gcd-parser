@@ -1059,6 +1059,7 @@ DEVICES = {
     3453: "GPSMAP 86sc",
     3454: "GPSMAP 86i",
     3455: "GPSMAP 86sci",
+    3458: "XERO X1i",
     3459: "Montana 700/700i/750i",
     3461: "Index S2 Smart Scale",
     3463: "RV-700",
@@ -1121,6 +1122,8 @@ DEVICES = {
     3591: "Forerunner 745, BLE_BT_ANT",
     3594: "Alpha 200i, Display",
     3596: "venu SQ MUSIC",
+    3597: "Elf Music, BLE_BT_ANT",
+    3598: "Elf Music, CTP Controller",
     3600: "venu SQ",
     3602: "Elf, Sensor Hub",
     3612: "SW, AAIN20 (Toyota Android), Indonesia, AOER",
@@ -1180,10 +1183,16 @@ DEVICES = {
     3856: "SW, LCMY20, System Code, AOER",
     3863: "Forerunner 45 Plus, Sensor Hub",
     3864: "Forerunner 45 Plus, Network",
+    3866: "GPS Software (3866)",
     3877: "Forerunner 745 ASIA, Sensor Hub",
+    3913: "Forerunner 245M redesign",
+    3914: "Forerunner 245 redesign",
     3946: "SW, LTDM20, System Code, AOER",
+    3964: "venu SQ ASIA, Sensor Hub",
 #    5423: "vivosmart APAC, ???",
 #    5424: "vivosmart APAC, ???",
 #    6182: "Varia Vision/Nautix, ???",
 #    7124: "vivoactive 3t, ???",
 }
+
+# vim: ft=txt
