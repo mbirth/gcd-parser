@@ -403,6 +403,14 @@ class TLVbinary0401(TLVbinary):
             txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
             txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, RED + "Unknown device" + RESET))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
+        elif skuprobe == b"SW_I":
+            swistring = self.value[10:20].decode("utf-8")
+            payloadprobe = self.value[0x40:0x42]
+            txt += "\n - Type: Software Inventory ({}) - actual payload starts at 0x40".format(swistring)
+            if payloadprobe == b"PK":
+                txt += "\n         Probably ZIP archive"
+            elif payloadprobe == b"Fi":
+                txt += "\n         Probably CSV file"
         else:
             txt += "\n  - Unknown header format (0x{})".format(hexlify(skuprobe).decode("utf-8"))
         #if not self.is_parsed:
