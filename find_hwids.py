@@ -12,7 +12,7 @@ from grmn import devices
 
 FILE = sys.argv[1]
 
-pattern = re.compile(rb"006-?B\d\d\d\d-?\d\d")
+pattern = re.compile(rb"006-?B\d\d\d\d-?[0-9A-F]{2}")
 
 print("Reading {} ...".format(FILE))
 with open(FILE, "rb") as f:
