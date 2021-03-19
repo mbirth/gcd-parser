@@ -404,7 +404,7 @@ class TLVbinary0401(TLVbinary):
             txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, RED + "Unknown device" + RESET))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
         else:
-            txt += "\n  - Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
+            txt += "\n  - Unknown header format (0x{})".format(hexlify(skuprobe).decode("utf-8"))
         #if not self.is_parsed:
         #    self.parse()
         return txt
