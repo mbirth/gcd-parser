@@ -232,13 +232,13 @@ class TLV6(TLV):
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
         super().__init__(type_id, expected_length, value, offset)
         self.fids = []
-        self.format = ""
+        self.format = []
         self.fields = []
 
     def add_fid(self, fid: int):
         fdef = self.FIELD_TYPES[fid]
         self.fids.append(fid)
-        self.format += fdef[0]
+        self.format.append(fdef[0])
         self.fields.append(fdef[1])
 
     def parse(self):
@@ -249,7 +249,7 @@ class TLV6(TLV):
             raise Exception(RED + "Invalid TLV6 payload length!" + RESET)
 
         self.fids = []
-        self.format = ""
+        self.format = []
         self.fields = []
         for i in range(0, len(self.value), 2):
             fid = unpack("<H", self.value[i:i+2])[0]
@@ -304,7 +304,7 @@ class TLV7(TLV):
         #print("Got {} Bytes.".format(len(self.value)))
         #print("Format: {}".format(self.tlv6.format))
         #print(repr(self.value))
-        values = unpack("<" + self.tlv6.format, self.value)
+        values = unpack("<" + "".join(self.tlv6.format), self.value)
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
             self.attr.append((fid, v))
@@ -331,7 +331,7 @@ class TLV7(TLV):
 
     def set_binary_length(self, new_length):
         self.tlv6.parse()
-        values = unpack("<" + self.tlv6.format, self.value)
+        values = unpack("<" + "".join(self.tlv6.format), self.value)
         new_values = []
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
@@ -339,7 +339,7 @@ class TLV7(TLV):
                 new_values.append(new_length)
             else:
                 new_values.append(v)
-        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.value = pack("<" + "".join(self.tlv6.format), *new_values)
         self.is_parsed = False
 
     def dump(self):
@@ -359,7 +359,7 @@ class TLV7(TLV):
         if not self.tlv6.is_parsed:
             # Make sure we have the structure analysed (need format attr)
             self.tlv6.parse()
-        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.value = pack("<" + "".join(self.tlv6.format), *new_values)
         self.length = len(self.value)
 
 class TLVbinary(TLV):
