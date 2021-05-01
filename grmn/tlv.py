@@ -354,7 +354,10 @@ class TLV7(TLV):
                 continue
             elif k[0:2] != "0x":
                 continue
-            numval = int(v, 0)
+            if v[0:2] == "0x":
+                numval = int(v, 0)
+            else:
+                numval = unhexlify(v)
             new_values.append(numval)
         if not self.tlv6.is_parsed:
             # Make sure we have the structure analysed (need format attr)
@@ -386,7 +389,7 @@ class TLVbinary(TLV):
             elif valtype == "Q":
                 valstr = "0x{:08x}".format(v)
             elif valtype == "31s":
-                valstr = repr(v)
+                valstr = hexlify(v).decode("utf-8")
             else:
                 valstr = "0x{:08x}".format(v)
             data.append(("0x{:04x}".format(fid), valstr, fdesc))
