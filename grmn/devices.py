@@ -1137,7 +1137,7 @@ DEVICES = {
     3572: "vivomove 3 Style/Luxe ASIA",
     3573: "vivomove 3 Sport APAC",
     3576: "Fusion MS-WB670",
-    3578: "fenix 5/5 Plus/Chronos, ???",
+    3578: "Rally 100/200",
     3589: "Forerunner 745",
     3590: "Forerunner 745, Sensor Hub",
     3591: "Forerunner 745, BLE_BT_ANT",
