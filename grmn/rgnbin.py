@@ -129,7 +129,7 @@ class RgnBin:
     def __str__(self):
         txt = "Binary payload, {} Bytes".format(len(self.payload))
         if self.hwid:
-            txt += "\n  -    hw_id: 0x{:04x} / {:d} ({})".format(self.hwid, self.hwid, devices.DEVICES.get(self.hwid, RED + "Unknown device" + RESET))
+            txt += "\n  -    hw_id: 0x{:04x} / {:d} ({})".format(self.hwid, self.hwid, devices.get_name(self.hwid, 0, RED + "Unknown device" + RESET))
         if self.version:
             txt += "\n  -  Version: 0x{:04x} / {:d}".format(self.version, self.version)
         cksum = ChkSum()

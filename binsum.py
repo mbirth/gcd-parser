@@ -35,7 +35,7 @@ with open(FILE, "rb") as f:
                 start += 4
                 hwid = unpack("<H", block[start+24:start+24+2])[0]
                 fver = unpack("<H", block[start+28:start+28+2])[0]
-                print("- Hardware ID: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, "Unknown device")))
+                print("- Hardware ID: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.get_name(hwid, 0, "Unknown device")))
                 print("- Firmware Version: 0x{:04x} / {:04d}".format(fver, fver))
             first_block = False
         if END_MARKER in block:

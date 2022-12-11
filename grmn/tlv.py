@@ -320,7 +320,7 @@ class TLV7(TLV):
             fdesc = self.tlv6.fields[i]
             (fid, v) = pair
             if fid == 0x1009:
-                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.DEVICES.get(v, RED + "Unknown device" + RESET))
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.get_name(v, 0, RED + "Unknown device" + RESET))
             elif fid == 0x2015:
                 txt += "\n  - Field {:d} ({:04x}): {:>20}: {} Bytes".format(i+1, fid, fdesc, v)
             elif fid == 0x4007:
@@ -404,7 +404,7 @@ class TLVbinary0401(TLVbinary):
             sku = self.value[10:20].decode("utf-8")
             hwid = int(sku[4:8])
             txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
-            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, RED + "Unknown device" + RESET))
+            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.get_name(hwid, 0, RED + "Unknown device" + RESET))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
         elif skuprobe == b"SW_I":
             swistring = self.value[10:20].decode("utf-8")

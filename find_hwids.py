@@ -32,7 +32,9 @@ results = sorted(set(results))
 
 for r in results:
     print(r, end="")
-    hw_id = int(r[5:9])
-    if hw_id in devices.DEVICES:
-        print(" - {}".format(devices.DEVICES[hw_id]), end="")
+    hw_id = r[5:9]
+    sub_id = r[10:]
+    device_name = devices.get_name(hw_id, sub_id)
+    if device_name:
+        print(" - {}".format(device_name), end="")
     print()
