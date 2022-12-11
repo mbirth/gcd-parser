@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 # Some acronyms/abbreviations:
+# * CTP - Capacitive Touch Panel
 # * FFP - Final Factory Production
 # * FR - Forerunner
+# * iR - inReach
 # * RTL - Radar Tail Light (Garmin Varia)
 # * RVR - Rear View Radar (Garmin Varia)
 # * SW - Software
@@ -511,6 +513,11 @@ DEVICES = {
         10: "Flight Stream 110/210 v2.30",
         11: "Flight Stream 110/210 v2.40",
         20: "Flight Stream 110/210 v2.50",
+        40: "Flight Stream 110/210 v2.70",
+        50: "Flight Stream 110/210 v2.80",
+        51: "Flight Stream 110/210 v2.81",
+        60: "Flight Stream 110/210 v2.90",
+        61: "Flight Stream 110/210 v2.91",
     },
     1786: {0: "GPS 15x|15xH/xL|16x|18x OEM/5Hz 1786"},
     1788: {0: "GTR20/200"},
@@ -588,6 +595,14 @@ DEVICES = {
         30: "Flight Stream 510 v2.30",
         32: "Flight Stream 510 v2.32",
         33: "Flight Stream 510 v2.33",
+        40: "Flight Stream 510 v2.40",
+        41: "Flight Stream 510 v2.41",
+        42: "Flight Stream 510 v2.42",
+        51: "Flight Stream 510 v2.51",
+        61: "Flight Stream 510 v2.61",
+        62: "Flight Stream 510 v2.62",
+        70: "Flight Stream 510 v2.70",
+        71: "Flight Stream 510 v2.71",
     },
     2024: {0: "Quatix China"},
     2030: {0: "HAC 2CT"},
@@ -1096,6 +1111,9 @@ DEVICES = {
     3144: {0: "Forerunner 235 Lite APAC"},
     3145: {0: "Forerunner 245 APAC"},
     3153: {0: "fenix 5 Plus, ANT_BLE_BT"},
+    3155: {
+        50: "RB-IN1501 Stereo Update",
+    },
     3157: {0: "Edge 830, ???"},
     3163: {0: "vivoactive 3 Music APAC, WiFi"},
     3164: {0: "vivoactive 3 Music APAC, Sensor Hub"},
@@ -1359,6 +1377,7 @@ DEVICES = {
     },
     3579: {
         10: "RV-85x/RV-105x",
+        50: "RV-5x Stereo Update",
     },
     3589: {0: "Forerunner 745"},
     3590: {0: "Forerunner 745, Sensor Hub"},
