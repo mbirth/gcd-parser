@@ -1,4 +1,4 @@
-# -*- coding: {0: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 # Some acronyms/abbreviations:
 # * FFP - Final Factory Production
@@ -1733,4 +1733,4 @@ DEVICES = {
 #    7124: {0: "vivoactive 3t, ???"},
 }
 
-# vim: {0: ft=txt
+# vim: ft=txt
