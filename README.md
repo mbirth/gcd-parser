@@ -1,11 +1,11 @@
 Garmin Firmware Tools
 =====================
 
-This is a parser and some tools for working with GCD files (firmware updates).
+This is a parser and some tools for working with Garmin firmware updates (GCD/RGN files).
 
 It's in Python, so feel free to add cool new features and submit pull requests.
 
-Thanks to TurboCCC, kunix and Alex W. for your work.
+Thanks to TurboCCC, kunix and AlexWhiter for your work.
 
 Most info from:
 
@@ -14,12 +14,22 @@ Most info from:
 * hours of looking at hex numbers
 
 
+How YOU can help
+----------------
+
+If you'd like to help, feel free to get all the SKU numbers from your `GarminDevice.xml`
+(numbers starting with 006-B...) and post them under "Issues" (create a new issue with the
+name of your device).
+
+Of course, pull requests are much appreciated, too.
+
+
 Tools
 -----
 
-### gcdstruct.py [gcdfile]
+### gcdstruct.py [gcdfile] / rgnstruct.py [rgnfile]
 
-Will show the general structure of the GCD file and also validate the contained checksums, e.g.:
+Will show the general structure of the GCD/RGN file and also validate the contained checksums, e.g.:
 
 ```
 $ ./gcdstruct.py fenix5Plus_510.gcd
@@ -167,3 +177,13 @@ Checks Express and WebUpdater for updates for the given hw_ids (1-4 digits) or f
 The first one is used as the main device in the query. Shouldn't make a big difference in the results, though.
 
 Special thanks to Alex W. for [his update check](https://github.com/AlexWhiter/GarminRelatedStuff).
+
+
+### list_missing_hwids.py
+
+Shows a list of hw_ids not yet listed in the `devices.py`. It prepends a call to `get_updates.py` for an
+easy way to check the update servers for new devices.
+
+To find future devices, you can supply a parameter (can be anything) and it will output 300 more hw_ids
+after the last known.
+

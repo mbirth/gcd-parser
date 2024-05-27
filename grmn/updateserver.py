@@ -13,7 +13,8 @@ import requests
 
 PROTO_API_GETALLUNITSOFTWAREUPDATES_URL = "http://omt.garmin.com/Rce/ProtobufApi/SoftwareUpdateService/GetAllUnitSoftwareUpdates"
 WEBUPDATER_SOFTWAREUPDATE_URL = "https://www.garmin.com/support/WUSoftwareUpdate.jsp"
-GRMN_CLIENT_VERSION = "6.17.0.0"
+GRMN_CLIENT_VERSION = "6.19.4.0"
+
 
 class UpdateInfo:
     def __init__(self):
@@ -105,6 +106,7 @@ class UpdateInfo:
 
     def __repr__(self):
         return "[{}] {} {} {}".format(self.source, self.sku, self.device_name, self.fw_version)
+
 
 class UpdateServer:
 
@@ -235,7 +237,7 @@ class UpdateServer:
     def get_unit_updates(self, device_xml):
         query = GetAllUnitSoftwareUpdates_pb2.GetAllUnitSoftwareUpdates()
         query.client_data.client = "express"
-        query.client_data.language ="en_GB"
+        query.client_data.language = "en_GB"
         query.client_data.client_platform = "Windows"
         query.client_data.client_platform_version = "1000 "
         query.device_xml = device_xml

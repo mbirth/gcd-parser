@@ -21,6 +21,13 @@ TLV_TYPES = {
     0x051b: "Binary Region 1b",
     0x052b: "Binary Region 2b",
     0x0533: "Binary Region 33 (dskimg)",
+    0x0534: "Binary Region 34",
+    0x0535: "Binary Region 35",
+    0x0536: "Binary Region 36",
+    0x0537: "Binary Region 37",
+    0x0538: "Binary Region 38",
+    0x0539: "Binary Region 39",
+    0x053a: "Binary Region 3a",
     0x0549: "Binary Region 49",
     0x0555: "Binary Region 55 (fw)",
     0x0556: "Binary Region 56",
@@ -33,6 +40,8 @@ TLV_TYPES = {
     0x0599: "Binary Region 99",
     0x059e: "Binary Region 9e (resources)",
     0x05a2: "Binary Region a2",
+    0x05a4: "Binary Region a4",
+    0x05a5: "Binary Region a5",
     0x05ab: "Binary Region ab",
     0x05f5: "Binary Region f5",
     0x05f9: "Binary Region f9",
@@ -47,9 +56,10 @@ TLV_TYPES = {
     0xffff: "EOF marker",
 }
 
-BINARY_TLVS = [ 0x0008, 0x02bd, 0x0505, 0x0510, 0x051b, 0x052b, 0x0533, 0x0549, 0x0555, 0x0556,
-                0x0557, 0x0566, 0x057f, 0x0588, 0x0590, 0x0595, 0x0599, 0x059e, 0x05a2, 0x05ab,
-                0x05f5, 0x05f9, 0x05fa, 0x05fb, 0x05fc, 0x05fd, 0x05fe, 0x07d1, 0x07d2, 0x07d3 ]
+BINARY_TLVS = [ 0x0008, 0x02bd, 0x0505, 0x0510, 0x051b, 0x052b, 0x0533, 0x0534, 0x0535, 0x0536,
+                0x0537, 0x0538, 0x0539, 0x053a, 0x0549, 0x0555, 0x0556, 0x0557, 0x0566, 0x057f,
+                0x0588, 0x0590, 0x0595, 0x0599, 0x059e, 0x05a2, 0x05a4, 0x05a5, 0x05ab, 0x05f5,
+                0x05f9, 0x05fa, 0x05fb, 0x05fc, 0x05fd, 0x05fe, 0x07d1, 0x07d2, 0x07d3 ]
 
 class TLV:
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
@@ -232,13 +242,13 @@ class TLV6(TLV):
     def __init__(self, type_id: int, expected_length: int, value=None, offset: int=None):
         super().__init__(type_id, expected_length, value, offset)
         self.fids = []
-        self.format = ""
+        self.format = []
         self.fields = []
 
     def add_fid(self, fid: int):
         fdef = self.FIELD_TYPES[fid]
         self.fids.append(fid)
-        self.format += fdef[0]
+        self.format.append(fdef[0])
         self.fields.append(fdef[1])
 
     def parse(self):
@@ -249,7 +259,7 @@ class TLV6(TLV):
             raise Exception(RED + "Invalid TLV6 payload length!" + RESET)
 
         self.fids = []
-        self.format = ""
+        self.format = []
         self.fields = []
         for i in range(0, len(self.value), 2):
             fid = unpack("<H", self.value[i:i+2])[0]
@@ -304,7 +314,7 @@ class TLV7(TLV):
         #print("Got {} Bytes.".format(len(self.value)))
         #print("Format: {}".format(self.tlv6.format))
         #print(repr(self.value))
-        values = unpack("<" + self.tlv6.format, self.value)
+        values = unpack("<" + "".join(self.tlv6.format), self.value)
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
             self.attr.append((fid, v))
@@ -320,7 +330,7 @@ class TLV7(TLV):
             fdesc = self.tlv6.fields[i]
             (fid, v) = pair
             if fid == 0x1009:
-                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.DEVICES.get(v, RED + "Unknown device" + RESET))
+                txt += "\n  - Field {:d} ({:04x}): {:>20}: 0x{:04x} / {:d} ({})".format(i+1, fid, fdesc, v, v, devices.get_name(v, 0, RED + "Unknown device" + RESET))
             elif fid == 0x2015:
                 txt += "\n  - Field {:d} ({:04x}): {:>20}: {} Bytes".format(i+1, fid, fdesc, v)
             elif fid == 0x4007:
@@ -331,7 +341,7 @@ class TLV7(TLV):
 
     def set_binary_length(self, new_length):
         self.tlv6.parse()
-        values = unpack("<" + self.tlv6.format, self.value)
+        values = unpack("<" + "".join(self.tlv6.format), self.value)
         new_values = []
         for i, v in enumerate(values):
             fid = self.tlv6.fids[i]
@@ -339,7 +349,7 @@ class TLV7(TLV):
                 new_values.append(new_length)
             else:
                 new_values.append(v)
-        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.value = pack("<" + "".join(self.tlv6.format), *new_values)
         self.is_parsed = False
 
     def dump(self):
@@ -354,12 +364,15 @@ class TLV7(TLV):
                 continue
             elif k[0:2] != "0x":
                 continue
-            numval = int(v, 0)
+            if v[0:2] == "0x":
+                numval = int(v, 0)
+            else:
+                numval = unhexlify(v)
             new_values.append(numval)
         if not self.tlv6.is_parsed:
             # Make sure we have the structure analysed (need format attr)
             self.tlv6.parse()
-        self.value = pack("<" + self.tlv6.format, *new_values)
+        self.value = pack("<" + "".join(self.tlv6.format), *new_values)
         self.length = len(self.value)
 
 class TLVbinary(TLV):
@@ -386,7 +399,7 @@ class TLVbinary(TLV):
             elif valtype == "Q":
                 valstr = "0x{:08x}".format(v)
             elif valtype == "31s":
-                valstr = repr(v)
+                valstr = hexlify(v).decode("utf-8")
             else:
                 valstr = "0x{:08x}".format(v)
             data.append(("0x{:04x}".format(fid), valstr, fdesc))
@@ -401,10 +414,18 @@ class TLVbinary0401(TLVbinary):
             sku = self.value[10:20].decode("utf-8")
             hwid = int(sku[4:8])
             txt += "\n  -     SKU: {}-{}-{}".format(sku[0:3], sku[3:8], sku[8:10])
-            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.DEVICES.get(hwid, RED + "Unknown device" + RESET))
+            txt += "\n  -   hw_id: 0x{:04x} / {:d} ({})".format(hwid, hwid, devices.get_name(hwid, 0, RED + "Unknown device" + RESET))
             txt += "\n  - Version: 0x{:04x} / {:d}".format(version, version)
+        elif skuprobe == b"SW_I":
+            swistring = self.value[10:20].decode("utf-8")
+            payloadprobe = self.value[0x40:0x42]
+            txt += "\n - Type: Software Inventory ({}) - actual payload starts at 0x40".format(swistring)
+            if payloadprobe == b"PK":
+                txt += "\n         Probably ZIP archive"
+            elif payloadprobe == b"Fi":
+                txt += "\n         Probably CSV file"
         else:
-            txt += "\n  - Unknown header format (0x{:04x} / 0x{:04x})".format(hdr1, hdr2)
+            txt += "\n  - Unknown header format (0x{})".format(hexlify(skuprobe).decode("utf-8"))
         #if not self.is_parsed:
         #    self.parse()
         return txt

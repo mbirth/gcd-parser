@@ -18,6 +18,7 @@ optp.add_option("-c", "--changelog", action="store_true", dest="changelog", help
 optp.add_option("-l", "--license", action="store_true", dest="license", help="also show license")
 optp.add_option("-E", "--express", action="store_false", dest="webupdater", default=True, help="Only query Garmin Express")
 optp.add_option("-W", "--webupdater", action="store_false", dest="express", default=True, help="Only query WebUpdater")
+optp.add_option("-q", "--quiet", action="store_true", dest="quiet", default=False, help="Only output results (if any)")
 optp.add_option("--id", dest="unit_id", help="Specify custom Unit ID")
 optp.add_option("--code", action="append", dest="unlock_codes", metavar="UNLOCK_CODE", default=[], help="Specify map unlock codes")
 optp.add_option("--devicexml", dest="devicexml", metavar="FILE", help="Use specified GarminDevice.xml (also implies -E)")
@@ -83,10 +84,11 @@ for i, sku in enumerate(device_skus):
     if len(sku) <= 4:
         device_skus[i] = "006-B{:>04}-00".format(sku)
 
-if device_skus[0][0:5] == "006-B":
+if device_skus[0][0:5] == "006-B" and not opts.quiet:
     primary_hwid = int(device_skus[0][5:9])
-    device_name = devices.DEVICES.get(primary_hwid, "Unknown device")
-    print("Device (guessed): {}".format(device_name))
+    primary_subid = device_skus[0][10:]
+    device_name = devices.get_name(primary_hwid, primary_subid, "Unknown device")
+    print("Device {:04d}-{:02} (guessed): {}".format(primary_hwid, primary_subid, device_name))
 
 if opts.unit_id:
     print("Custom Unit ID: {}".format(opts.unit_id))
@@ -99,14 +101,18 @@ for uc in opts.unlock_codes:
 results = []
 
 if opts.express:
-    print("Querying Garmin Express ...", end="", flush=True)
+    if not opts.quiet:
+        print("Querying Garmin Express ...", end="", flush=True)
     results += us.query_express(device_skus)
-    print(" done.")
+    if not opts.quiet:
+        print(" done.")
 
 if opts.webupdater:
-    print("Querying Garmin WebUpdater ...", end="", flush=True)
+    if not opts.quiet:
+        print("Querying Garmin WebUpdater ...", end="", flush=True)
     results += us.query_webupdater(device_skus)
-    print(" done.")
+    if not opts.quiet:
+        print(" done.")
 
 for r in results:
     print(r)
