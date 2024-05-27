@@ -1172,7 +1172,7 @@ DEVICES = {
     3273: {0: "Instinct APAC"},
     3275: {0: "Edge/Edge Bontrager 1030, ???"},
     3281: {0: "STRIKER Cast"},
-    3282: {0: "Forerunner 45"},
+    3282: {0: "Forerunner 45S/45"},
     3284: {0: "GPSMAP 66i"},
     3286: {0: "Garmin DriveSmart 65 with Amazon Alexa"},
     3287: {0: "fenix 6S"},
