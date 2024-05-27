@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # Some acronyms/abbreviations:
+# * CPE - Connected Predictive Ephemeris
 # * CTP - Capacitive Touch Panel
+# * EPO - Extended Prediction Orbit
 # * FFP - Final Factory Production
 # * FR - Forerunner
 # * iR - inReach
