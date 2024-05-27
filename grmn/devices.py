@@ -1582,7 +1582,7 @@ DEVICES = {
     },
     3934: {0: "Approach S42"},
     3943: {
-        0: "epix Gen2",
+        0: "Epix (Gen 2)",
         10: "System Software Bundle",
     },
     3944: {
