@@ -14,7 +14,7 @@
 def get_name(hwid, subid, default=None):
     global DEVICES
     hwid = int(hwid)
-    if subid.isnumeric():
+    if type(subid) is str and subid.isnumeric():
         subid = int(subid)
     return DEVICES.get(hwid, {subid: default}).get(subid, default)
 
