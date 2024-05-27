@@ -1553,6 +1553,7 @@ DEVICES = {
         10: "System Software Bundle",
     },
     3906: {
+        0: "fenix 7 Solar",
         10: "System Software Bundle",
     },
     3907: {
@@ -1581,6 +1582,7 @@ DEVICES = {
     },
     3934: {0: "Approach S42"},
     3943: {
+        0: "epix Gen2",
         10: "System Software Bundle",
     },
     3944: {
